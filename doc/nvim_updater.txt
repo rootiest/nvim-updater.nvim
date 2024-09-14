@@ -63,8 +63,7 @@ Example setup using lazy.nvim:
         branch = "master",                   -- Track nightly branch
       })
     end,
-
-    keys = {
+    keys = { -- Custom keymappings
       {
         "<Leader>cuU",
         ":UpdateNeovim<CR>",
@@ -77,13 +76,21 @@ Example setup using lazy.nvim:
         end,
         desc = "Debug Build Neovim",
       },
-      {
+      { -- Remove Neovim Source
         "<Leader>cRN",
         ":RemoveNeovimSource<CR>",
         desc = "Remove Neovim Source Directory",
       },
     },
   })
+<
+
+Minimal example with defaults:
+>lua
+  {
+    "rootiest/nvim-updater.nvim",
+    opts = {},
+  }
 <
 ==============================================================================
 Commands                                            *nvim-updater-commands*
