@@ -180,7 +180,7 @@ Available options:
 #### Open floating terminal
 
 ```lua
-require("nvim_updater").open_floating_terminal(options)
+require("nvim_updater.utils").open_floating_terminal(options)
 ```
 
 This is a helper function for opening a floating terminal that is used by the

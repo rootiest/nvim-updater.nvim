@@ -3,22 +3,8 @@
 local health = vim.health or require("health") -- Handles compatibility between older/newer versions of Neovim
 local fn = vim.fn
 local fs = vim.fs -- Module for filesystem operations in Neovim 0.10+
-
--- Create a temporary file to check write permissions in the directory or parent directory.
-local function check_write_permissions(dir)
-	local temp_file_path = dir .. "/nvim_updater_tmp_file.txt"
-
-	-- Try to open the temporary file for writing
-	local file = io.open(temp_file_path, "w")
-
-	if file then
-		file:close() -- Close the file to ensure it's written
-		fn.delete(temp_file_path) -- Cleanup: remove the temporary file
-		return true -- Directory is writable
-	else
-		return false -- Directory is not writable
-	end
-end
+local utils = require("nvim_updater.utils")
+local check_write_permissions = utils.check_write_permissions
 
 -- Neovim Updater Health Checks
 ---@function check
@@ -34,6 +20,13 @@ local function check()
 	-- Directory Existence Check
 	if fn.isdirectory(source_dir) == 1 then
 		health.ok("Source directory exists: " .. source_dir)
+
+		-- Check that the plugin reflects the same
+		if utils.directory_exists(source_dir) then
+			health.ok("Source directory matches plugin directory: " .. source_dir)
+		else
+			health.warn("Source directory does not match plugin directory: " .. source_dir)
+		end
 
 		-- Write permission check using temp file test if the directory exists
 		if check_write_permissions(source_dir) then
