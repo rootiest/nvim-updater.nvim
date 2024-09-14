@@ -15,6 +15,7 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
     require("nvim_updater").setup({
       source_dir = "~/.local/src/neovim",  -- Custom target directory
       build_type = "RelWithDebInfo",       -- Set the desired build type
+      branch = "master",                   -- Track nightly branch
     })
   end,
 
@@ -70,7 +71,7 @@ The `setup` function accepts an optional table to configure the plugin’s behav
 require("nvim_updater").setup({
   source_dir = "~/projects/neovim",  -- Custom source directory
   build_type = "Release",            -- Use Release mode for building
-  branch = "stable",                 -- Default to the 'stable' branch
+  branch = "master",                 -- Default to the 'master' branch
 })
 ```
 
@@ -126,24 +127,46 @@ this filetype is active in your terminal buffers.
 #### Example Lualine Configuration
 
 ```lua
-require('lualine').setup {
+require("lualine").setup {
   sections = {
-    lualine_a = { 'mode' },
-    lualine_b = { 'branch' },
+    lualine_a = { "mode" },
+    lualine_b = { "branch" },
     lualine_c = {
-      {
-        'filename',
+      { -- Hide filename when using the updater
+        "filename",
         cond = function()
           return vim.bo.filetype ~= "neovim_updater_term"
         end,
       },
-    },
+      { -- Neovim Updater
+        function()
+          return "Neovim Updating.."
+        end,
+        icon = "󰅢 ",
+        -- Use the lualine_a highlight for emphasis
+        color = "lualine_a_terminal",
+        -- Use bubble separators
+        separator = { left = "", right = "" },
+        -- Show only when using the updater
+        cond = function()
+          return vim.bo.filetype == "neovim_updater_term"
+        end,
+      },
   },
+  -- Other lualine components
 }
 ```
 
 This configuration hides the file name in lualine when
-the `neovim_updater_term` filetype is detected.
+the `neovim_updater_term` filetype is detected and
+shows the `Neovim Updating` component instead.
+
+In this way we can avoid a messy "filename" being displayed
+when using the updater and instead display a customized
+"Neovim Updating" message.
+
+The condition can also be applied to any other components you
+wish to hide when using the updater.
 
 ---
 
