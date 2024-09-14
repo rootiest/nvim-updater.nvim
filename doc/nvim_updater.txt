@@ -1,14 +1,14 @@
-*nvim-updater.txt*   Neovim Updater Plugin Documentation
+*nvim_updater.txt*   Neovim Updater Plugin Documentation
 
 ==============================================================================
-Neovim Updater Plugin                                 *nvim-updater* *nvim_updater*
+Neovim Updater Plugin                                           *nvim_updater*
 
 Author: rootiest <github.com/rootiest>
 Version: 1.0
 License: MIT
 
 ==============================================================================
-CONTENTS                                               *nvim-updater-contents*
+CONTENTS                                               *nvim_updater-contents*
 1. |nvim_updater-intro|            Introduction
 2. |nvim_updater-installation|     Installation
 3. |nvim_updater-commands|         Commands
@@ -20,14 +20,14 @@ CONTENTS                                               *nvim-updater-contents*
 9. |nvim_updater-license|          License
 
 ==============================================================================
-1. Introduction                                        *nvim_updater-intro*
+1. Introduction                                           *nvim_updater-intro*
 
 The *nvim-updater* plugin allows you to manage and update Neovim from the
 source code. It provides customizable options for the source directory, build
 type, branch, and user-defined keymaps for convenience.
 
 ==============================================================================
-2. Installation                                        *nvim_updater-installation*
+2. Installation                                    *nvim_updater-installation*
 
 Example setup using lazy.nvim:
 
@@ -40,16 +40,26 @@ Example setup using lazy.nvim:
       build_type = "RelWithDebInfo",       -- Set the desired build type
     })
   end,
-  
+
   keys = {
-    { "<Leader>cuU", ":UpdateNeovim<CR>", desc = "Custom Update Neovim" },
-    { "<Leader>cuD", function() require("nvim_updater").update_neovim({ build_type = "Debug" }) end, desc = "Debug Build Neovim" }
+    {
+      "<Leader>cuU",
+      ":UpdateNeovim<CR>",
+      desc = "Custom Update Neovim",
+    },
+    {
+      "<Leader>cuD",
+      function()
+        require("nvim_updater").update_neovim({ build_type = "Debug" })
+      end,
+      desc = "Debug Build Neovim",
+    }
   }
 }
 ```
 
 ==============================================================================
-3. Commands                                              *nvim_updater-commands*
+3. Commands                                            *nvim_updater-commands*
 
 Available commands:
 
@@ -64,7 +74,7 @@ Example usage:
 ```
 
 ==============================================================================
-4. Keymaps                                       *nvim_updater-keymaps*
+4. Keymaps                                              *nvim_updater-keymaps*
 
 Default key mappings:
 
@@ -76,7 +86,7 @@ Users may define custom key mappings via the setup function.
 If `keys` is set to `nil`, the default keymaps are enabled.
 
 ==============================================================================
-5. Configuration                                     *nvim_updater-config*
+5. Configuration                                         *nvim_updater-config*
 
 The plugin's setup function accepts an optional configuration table.
 Available configuration fields:
@@ -107,14 +117,14 @@ require("nvim_updater").setup({
 ```
 
 ==============================================================================
-6. Filetype integration                                 *nvim_updater-filetype*
+6. Filetype integration                                *nvim_updater-filetype*
 
 The terminal buffer created for updating Neovim uses a custom filetype 
 called `neovim_updater_term`.
 
-This allows you to perform conditional customizations with your statusline (e.g., 
-hiding or showing certain statusline components) or for plugins dependent 
-on filetypes.
+This allows you to perform conditional customizations with your statusline 
+(e.g., hiding or showing certain statusline components) or for plugins 
+dependent on filetypes.
 
 #### Example lualine configuration to hide filename when using the updater term:
 
@@ -136,7 +146,7 @@ require('lualine').setup {
 ```
 
 ==============================================================================
-7. Compatibility                                       *nvim_updater-compatibility*
+7. Compatibility                                  *nvim_updater-compatibility*
 
 - **Platform**: This plugin has been tested and configured primarily for Linux.
   It may also work on macOS or other platforms, but assumes Linux-based 
@@ -147,7 +157,7 @@ require('lualine').setup {
   calls). Ensure you're running a compatible version for optimal functionality.
 
 ==============================================================================
-8. Contributing                                         *nvim_updater-contributions*
+8. Contributing                                   *nvim_updater-contributions*
 
 Contributions and suggestions are welcome! Feel free to open GitHub issues with
 feature requests, bug reports, or pull requests.
