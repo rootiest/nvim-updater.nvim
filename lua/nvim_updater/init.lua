@@ -49,13 +49,23 @@ local function notify(message, level)
 end
 
 ---@function M.update_neovim
----Update Neovim from source based on provided or default configuration options
+---Update Neovim from source based on provided or default configuration options.
+---If the directory does not exist, it will first clone the repository, then checkout the specified branch.
 ---@param opts table|nil Optional parameters 'source_dir', 'build_type', and 'branch'
 function M.update_neovim(opts)
 	opts = opts or {}
-	local source_dir = opts.source_dir or default_config.source_dir
-	local build_type = opts.build_type or default_config.build_type
-	local branch = opts.branch or default_config.branch
+	local source_dir = opts.source_dir or ""
+	if source_dir == "" then
+		source_dir = default_config.source_dir
+	end
+	local build_type = opts.build_type or ""
+	if build_type == "" then
+		build_type = default_config.build_type
+	end
+	local branch = opts.branch or ""
+	if branch == "" then
+		branch = default_config.branch
+	end
 
 	notify("Using source directory: " .. vim.inspect(source_dir), vim.log.levels.INFO)
 
@@ -63,13 +73,21 @@ function M.update_neovim(opts)
 	local git_commands = ""
 
 	if not dir_exists then
-		notify("Cloning Neovim repository into: " .. source_dir .. " on branch " .. branch, vim.log.levels.INFO)
-		git_commands = "git clone -b " .. branch .. " https://github.com/neovim/neovim " .. source_dir
-	else
-		notify("Updating Neovim source in branch: " .. branch, vim.log.levels.INFO)
-		git_commands = "cd " .. source_dir .. " && git checkout " .. branch .. " && git pull"
+		notify("Cloning Neovim repository to: " .. source_dir, vim.log.levels.INFO)
+		-- First, clone without specifying a branch
+		git_commands = "git clone https://github.com/neovim/neovim " .. source_dir
 	end
 
+	-- Checkout the branch and pull updates
+	notify("Checking out branch: " .. branch, vim.log.levels.INFO)
+	git_commands = git_commands
+		.. " && cd "
+		.. source_dir
+		.. " && git fetch origin && git checkout "
+		.. branch
+		.. " && git pull"
+
+	notify("Building Neovim with build type: " .. build_type, vim.log.levels.INFO)
 	local build_commands = "cd "
 		.. source_dir
 		.. " && make clean && make CMAKE_BUILD_TYPE="
@@ -137,7 +155,10 @@ end
 ---@param opts table|nil Optional table for 'source_dir'
 function M.remove_source_dir(opts)
 	opts = opts or {}
-	local source_dir = opts.source_dir or default_config.source_dir
+	local source_dir = opts.source_dir or ""
+	if source_dir == "" then
+		source_dir = default_config.source_dir
+	end
 
 	if directory_exists(source_dir) then
 		local success = vim.fn.delete(source_dir, "rf")
