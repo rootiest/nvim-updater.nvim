@@ -32,32 +32,37 @@ type, branch, and user-defined keymaps for convenience.
 
 Example setup using lazy.nvim:
 
-```lua
-{
-  "rootiest/nvim-updater.nvim",
-  config = function()
-    require("nvim-updater").setup({
-      source_dir = "~/.local/src/neovim",  -- Custom target directory
-      build_type = "RelWithDebInfo",       -- Set the desired build type
-    })
-  end,
+>lua
+  require("lazy").setup({
+    "rootiest/nvim-updater.nvim",
+    config = function()
+      require("nvim-updater").setup({
+        source_dir = "~/.local/src/neovim", -- Custom target directory
+        build_type = "RelWithDebInfo", -- Set the desired build type
+      })
+    end,
 
-  keys = {
-    {
-      "<Leader>cuU",
-      ":UpdateNeovim<CR>",
-      desc = "Custom Update Neovim",
+    keys = {
+      {
+        "<Leader>cuU",
+        ":UpdateNeovim<CR>",
+        desc = "Custom Update Neovim",
+      },
+      {
+        "<Leader>cuD",
+        function()
+          require("nvim-updater").update_neovim({ build_type = "Debug" })
+        end,
+        desc = "Debug Build Neovim",
+      },
+      {
+        "<Leader>cRN",
+        ":RemoveNeovimSource<CR>",
+        desc = "Remove Neovim Source Directory",
+      },
     },
-    {
-      "<Leader>cuD",
-      function()
-        require("nvim-updater").update_neovim({ build_type = "Debug" })
-      end,
-      desc = "Debug Build Neovim",
-    }
-  }
-}
-```
+  })
+<
 
 ==============================================================================
 3. Commands                                            *nvim-updater-commands*
@@ -70,27 +75,27 @@ Available commands:
                     build it using the defined build type.
 
 Example usage:
-```vim
-:UpdateNeovim
-```
+>vim
+  :UpdateNeovim
+<
 
 |:RemoveNeovimSource| - Removes the source directory.
                        This allows you to clear out the source directory
                        after updating Neovim.
                        
 Example usage:
-```vim
-:RemoveNeovimSource
-```
+>vim
+  :RemoveNeovimSource
+<
 
 ==============================================================================
 4. Keymaps                                              *nvim-updater-keymaps*
 
 Default key mappings:
 
-- **<Leader>uU**: Update Neovim (default build type `RelWithDebInfo`).
-- **<Leader>uD**: Update Neovim with `Debug` build type.
-- **<Leader>uR**: Update Neovim with `Release` build type.
+- `<Leader>uU`: Update Neovim (default build type `RelWithDebInfo`).
+- `<Leader>uD`: Update Neovim with `Debug` build type.
+- `<Leader>uR`: Update Neovim with `Release` build type.
 
 Users may define custom key mappings via the setup function.
 If `keys` is set to `nil`, the default keymaps are enabled.
@@ -101,7 +106,6 @@ If `keys` is set to `nil`, the default keymaps are enabled.
 The plugin's setup function accepts an optional configuration table.
 Available configuration fields:
 
-```
 - source_dir  (string) - Path where Neovim will be cloned or updated. 
                          Default: `~/.local/src/neovim`
 
@@ -114,17 +118,16 @@ Available configuration fields:
 
 - keys        (table or nil) - Optional key mappings. If `nil`, 
                                default keymaps will be set.
-```
 
 Example setup with custom settings:
 
-```lua
-require("nvim-updater").setup({
-  source_dir = "~/projects/neovim",  -- Custom source directory
-  build_type = "Release",            -- Use Release mode
-  branch = "stable",                 -- Track stable branch
-})
-```
+>lua
+  require("nvim-updater").setup({
+    source_dir = "~/projects/neovim",  -- Custom source directory
+    build_type = "Release",            -- Use Release mode
+    branch = "stable",                 -- Track stable branch
+  })
+<
 
 ==============================================================================
 6. Filetype integration                                *nvim-updater-filetype*
@@ -138,36 +141,36 @@ dependent on filetypes.
 
 #### Example lualine configuration to hide filename when using the updater term:
 
-```lua
-require("lualine").setup {
-  sections = {
-    lualine_a = { "mode" },
-    lualine_b = { "branch" },
-    lualine_c = {
-      { -- Hide filename when using the updater
-        "filename",
-        cond = function()
-          return vim.bo.filetype ~= "neovim_updater_term"
-        end,
-      },
-      { -- Neovim Updater
-        function()
-          return "Neovim Updating.."
-        end,
-        icon = "󰅢 ",
-        -- Use the lualine_a highlight for emphasis
-        color = "lualine_a_terminal",
-        -- Use bubble separators
-        separator = { left = "", right = "" },
-        -- Show only when using the updater
-        cond = function()
-          return vim.bo.filetype == "neovim_updater_term"
-        end,
-      },
-  },
-  -- Other lualine components
-}
-```
+>lua
+  require("lualine").setup {
+    sections = {
+      lualine_a = { "mode" },
+      lualine_b = { "branch" },
+      lualine_c = {
+        { -- Hide filename when using the updater
+          "filename",
+          cond = function()
+            return vim.bo.filetype ~= "neovim_updater_term"
+          end,
+        },
+        { -- Neovim Updater
+          function()
+            return "Neovim Updating.."
+          end,
+          icon = "󰅢 ",
+          -- Use the lualine_a highlight for emphasis
+          color = "lualine_a_terminal",
+          -- Use bubble separators
+          separator = { left = "", right = "" },
+          -- Show only when using the updater
+          cond = function()
+            return vim.bo.filetype == "neovim_updater_term"
+          end,
+        },
+    },
+    -- Other lualine components
+  }
+<
 
 This configuration hides the file name in lualine when the 
 `neovim_updater_term` filetype is detected and shows the 
