@@ -101,17 +101,21 @@ The following functions are available in the `nvim_updater` namespace:
   require("nvim_updater").update_neovim(options)
 <
 Available options:
-- `source_dir`: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
-- `build_type`: The build type to use, e.g.,
-  `Release`, `Debug`, or `RelWithDebInfo`. Default is `RelWithDebInfo`.
-- `branch`: The branch to track when cloning Neovim. Default is `master`.
+- `source_dir`: Path to where the Neovim source is cloned.
+                Default is `~/.local/src/neovim`.
+- `build_type`: The build type to use.
+                Options are `Release`, `Debug`, or `RelWithDebInfo`.
+                Default is `RelWithDebInfo`.
+- `branch`: The branch to track when cloning Neovim.
+                Default is `master`.
 
 --- Remove Neovim source ---
 >lua
   require("nvim_updater").remove_source_dir(options)
 <
 Available options:
-- `source_dir`: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+- `source_dir`: Path to where the Neovim source is cloned.
+                Default is `~/.local/src/neovim`.
 
 --- Open floating terminal ---
 >lua
@@ -126,7 +130,7 @@ Available options:
 
 --- Setup ---
 >lua
-require("nvim_updater").setup(options)
+  require("nvim_updater").setup(options)
 <
 See |nvim-updater-config| for setup options.
 
