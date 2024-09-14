@@ -1,70 +1,76 @@
 # Neovim Updater Plugin
 
-This plugin updates Neovim from source with customizable options.
+This plugin allows you to easily update Neovim from source,
+with fully customizable options to define where the source is cloned,
+which branch is tracked, and the desired build type.
 
-## Installation and Setup with lazy.nvim
+## 📦 Installation and Setup (with lazy.nvim)
 
-Using [lazy.nvim](https://github.com/folke/lazy.nvim):
+To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-   "rootiest/nvim-updater.nvim",
-   config = function()
-     require("nvim_updater").setup({
-       source_dir = "~/.local/src/neovim",  -- Custom target directory
-       build_type = "RelWithDebInfo",  -- Set the desired build type
-       -- If you don't provide the `keys` field,
-       --  default keymaps will be set (see below)
-     })
-   end,
+  "rootiest/nvim-updater.nvim",
+  config = function()
+    require("nvim_updater").setup({
+      source_dir = "~/.local/src/neovim",  -- Custom target directory
+      build_type = "RelWithDebInfo",       -- Set the desired build type
+    })
+  end,
 
-   -- Optionally, you can completely customize your own keymaps
-   keys = {
-     {
+  -- Optionally, you can customize your own keymaps
+  keys = {
+    {
       "<Leader>cuU",
-      ":UpdateNeovim<CR>",
+      function()
+        require('nvim_updater').update_neovim()
+      end,
       desc = "Custom Update Neovim"
     },
-     {
+    {
       "<Leader>cuD",
       function()
         require('nvim_updater').update_neovim({ build_type = 'Debug' })
       end,
       desc = "Debug Build Neovim"
     },
-   }
+  }
 }
 ```
 
 ---
 
-### Defaults
+### ✨ Features
 
-- If no `source_dir` is provided, it defaults to `~/.local/src/neovim`.
-- If no `build_type` is specified, it defaults to `RelWithDebInfo`.
-- If no `keys` are provided, the plugin sets [default keymaps](#️-default-keybindings)
+- Clone, build, and install Neovim **from the source**.
+- Customizable **source path**, **build type**
+  (`Debug`, `Release`, `RelWithDebInfo`), and **branch**.
+- Provides default keybindings for quick actions or
+  lets you define your own custom keymaps.
+- Integrates with **lualine** and statusline plugins via a
+  dedicated buffer **filetype** for customization.
 
 ---
 
 ## ⚙️ Configuration
 
-The `setup` function accepts an optional table to configure the plugin's behavior:
+The `setup` function accepts an optional table to configure the plugin’s behavior.
 
 ### Available Options
 
-- **source_dir**: (string) Path to the directory where Neovim
-  source is cloned and built. Default: `~/.local/src/neovim`.
-- **build_type**: (string) Specify the build type for Neovim,
-  such as `Release`, `Debug`, or `RelWithDebInfo`. Default: `RelWithDebInfo`.
-- **keys**: (nil or table) If `nil`, the plugin sets default keymaps.
-  If you provide your own keymaps, defaults are disabled.
+- **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+- **`build_type`**: The build type to use, e.g.,
+  `Release`, `Debug`, or `RelWithDebInfo`. Default is `RelWithDebInfo`.
+- **`branch`**: The branch to track when cloning Neovim. Default is `master`.
+- **`keys`**: (table|nil) Define custom keymaps. When `nil`, sets default keymaps.
 
-Example setup with custom `source_dir` and `build_type`:
+### Example Setup
 
 ```lua
 require("nvim_updater").setup({
   source_dir = "~/projects/neovim",  -- Custom source directory
-  build_type = "Release",            -- Use Release mode to build
+  build_type = "Release",            -- Use Release mode for building
+  branch = "stable",                 -- Default to the 'stable' branch
 })
 ```
 
@@ -72,71 +78,109 @@ require("nvim_updater").setup({
 
 ## ⌨️ Default Keybindings
 
-If you do not provide any custom `keys` or disable the `keys` field in the plugin
-config, the following default key maps are created:
+If you do not specify your own custom keymaps,
+the plugin provides the following default keymaps:
 
 - **`<Leader>uU`**: Update Neovim using the default configuration.
-- **`<Leader>uD`**: Update Neovim using a `Debug` build type.
+- **`<Leader>uD`**: Update Neovim using a `Debug` build.
 - **`<Leader>uR`**: Update Neovim using a `Release` build type.
 
-If you'd prefer to use your own keymaps,
-customize it with the `keys` field in lazy.nvim
-as shown in the installation section.
+You can override these keybindings by providing a table of
+custom **key mappings** in the plugin’s setup
+(as demonstrated in the installation example).
 
 ---
 
-## 🔧 Commands
+## 🔧 Exposed Commands
 
-**_Exposed Commands:_**
+### Commands
 
-- `:UpdateNeovim`: This command updates Neovim from the source using default
-  or user-set options (specifying the source directory and build type).
+- **`:UpdateNeovim`**: Updates Neovim from the source, using the default
+  or custom options you’ve set (e.g., source directory, build type, and branch).
+  If the source does not exist at the specified path,
+  the repository is cloned and built.
 
-### Example
+#### Example
 
 ```vim
 :UpdateNeovim
 ```
 
-This will either clone the Neovim source (if it doesn’t exist at the path)
-or pull the latest changes and then build it according to the configured build type.
+This command pulls the latest changes from the source
+and builds Neovim based on your configuration.
 
 ---
 
-## 🌍 Compatibility
+## 📂 Filetype Integration
 
-- **Platform:** The plugin is designed for Linux.
-  While it may work on macOS or other platforms,
-  `sudo make install` is hardcoded and assumes a Linux environment setup.
-- **Neovim Version:** Ensure you are using Neovim 0.09+ to
-  avoid compatibility issues with the required Lua APIs.
+The plugin assigns a custom **filetype** to the terminal buffer
+used to run shell commands for updating Neovim.
+
+### Filetype: `neovim_updater_term`
+
+You can easily integrate with statusline plugins like **lualine** by referencing
+this **filetype** and applying custom conditions.
+For example, you may want to hide certain lualine components when
+this filetype is active in your terminal buffers.
+
+#### Example Lualine Configuration
+
+```lua
+require('lualine').setup {
+  sections = {
+    lualine_a = { 'mode' },
+    lualine_b = { 'branch' },
+    lualine_c = {
+      {
+        'filename',
+        cond = function()
+          return vim.bo.filetype ~= "neovim_updater_term"
+        end,
+      },
+    },
+  },
+}
+```
+
+This configuration hides the file name in lualine when
+the `neovim_updater_term` filetype is detected.
+
+---
+
+## ⚠️ Compatibility
+
+- **Platform:** The plugin is primarily developed for Linux environments.
+  Although it may work on macOS or other platforms,
+  `sudo make install` is hardcoded and assumes a Linux-based setup.
+- **Neovim Version:** This plugin requires **Neovim 0.10+** to operate correctly,
+  as it depends on specific Lua API features.
 
 ---
 
 ## 🛠️ Contributing
 
-If you run into any issues or have suggestions for improvements,
-feel free to open a GitHub issue.
-Contributions are welcome in the form of pull requests.
+If you find any issues or have suggestions for improvement,
+feel free to open a GitHub issue or send a pull request.
+We welcome contributions!
 
 ### Filing an Issue
 
-When reporting a bug, make sure to include:
+Be sure to include the following information when reporting bugs:
 
-1. Neovim version (`nvim --version`)
-2. Error messages/log (if any)
-3. Steps to reproduce, if applicable.
+1. The output of `nvim --version`.
+2. Error messages from Neovim (if any).
+3. Steps to reproduce the issue.
 
-### Submitting a PR
+### PR Submission Guidelines
 
 1. Fork the repository.
-2. Create a feature branch for your changes.
-3. Add new functionality or fix bugs and ensure tests (if applicable) pass.
-4. Submit a pull request describing changes clearly.
+2. Create a new branch for your feature or fix.
+3. Make your changes, add or update tests, and confirm everything works.
+4. Submit a **pull request** with a clear description of the changes made.
 
 ---
 
 ## 📜 License
 
 This repository is licensed under the [MIT License](LICENSE).
-Feel free to use this in your own projects!
+You are free to use, modify, and distribute this project in your own work.
