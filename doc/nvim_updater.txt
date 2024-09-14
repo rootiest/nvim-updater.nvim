@@ -10,25 +10,26 @@ License: MIT
 
 ==============================================================================
 CONTENTS                                               *nvim-updater-contents*
-1. |nvim-updater-intro|            Introduction
-2. |nvim-updater-installation|     Installation
-3. |nvim-updater-commands|         Commands
-4. |nvim-updater-keymaps|          Keymaps
-5. |nvim-updater-config|           Configuration
-6. |nvim-updater-filetype|         filetype integration
-7. |nvim-updater-compatibility|    Compatibility
-8. |nvim-updater-contributions|    Contributions
-9. |nvim-updater-license|          License
+|nvim-updater-intro|            Introduction
+|nvim-updater-installation|     Installation
+|nvim-updater-commands|         Commands
+|nvim-updater-lua-funcs|        Lua Functions
+|nvim-updater-keymaps|          Keymaps
+|nvim-updater-config|           Configuration
+|nvim-updater-filetype|         filetype integration
+|nvim-updater-compatibility|    Compatibility
+|nvim-updater-contributions|    Contributions
+|nvim-updater-license|          License
 
 ==============================================================================
-1. Introduction                                           *nvim-updater-intro*
+Introduction                                           *nvim-updater-intro*
 
 The nvim-updater plugin allows you to manage and update Neovim from the
 source code. It provides customizable options for the source directory, build
 type, branch, and user-defined keymaps for convenience.
 
 ==============================================================================
-2. Installation                                    *nvim-updater-installation*
+Installation                                    *nvim-updater-installation*
 
 Example setup using lazy.nvim:
 
@@ -65,7 +66,7 @@ Example setup using lazy.nvim:
 <
 
 ==============================================================================
-3. Commands                                            *nvim-updater-commands*
+Commands                                            *nvim-updater-commands*
 
 Available commands:
 
@@ -89,7 +90,42 @@ Example usage:
 <
 
 ==============================================================================
-4. Keymaps                                              *nvim-updater-keymaps*
+Lua Functions                                        *nvim-updater-lua-funcs*
+
+The plugin exposes several Lua functions.
+
+The following functions are available in the `nvim_updater` namespace:
+
+--- Update Neovim from source ---
+>lua
+  require("nvim_updater").update_neovim(options)
+<
+Available options:
+- `source_dir`: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+- `build_type`: The build type to use, e.g.,
+  `Release`, `Debug`, or `RelWithDebInfo`. Default is `RelWithDebInfo`.
+- `branch`: The branch to track when cloning Neovim. Default is `master`.
+
+--- Remove Neovim source ---
+>lua
+  require("nvim_updater").remove_neovim_source(options)
+<
+Available options:
+- `source_dir`: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+
+--- Open floating terminal ---
+>lua
+  require("nvim_updater").open_floating_terminal(options)
+<
+This is a helper function for opening a floating terminal that is used by the
+updater to display the terminal output.
+
+Available options:
+- `cmd`: Command to run in the terminal.
+- `filetype`: Filetype to assign to the terminal buffer.
+
+==============================================================================
+Keymaps                                              *nvim-updater-keymaps*
 
 Default key mappings:
 
@@ -101,7 +137,7 @@ Users may define custom key mappings via the setup function.
 If `keys` is set to `nil`, the default keymaps are enabled.
 
 ==============================================================================
-5. Configuration                                         *nvim-updater-config*
+Configuration                                         *nvim-updater-config*
 
 The plugin's setup function accepts an optional configuration table.
 Available configuration fields:
@@ -130,7 +166,7 @@ Example setup with custom settings:
 <
 
 ==============================================================================
-6. Filetype integration                                *nvim-updater-filetype*
+Filetype integration                                *nvim-updater-filetype*
 
 The terminal buffer created for updating Neovim uses a custom filetype 
 called `neovim_updater_term`.
@@ -184,7 +220,7 @@ The condition can also be applied to any other components you
 wish to hide when using the updater.
 
 ==============================================================================
-7. Compatibility                                  *nvim-updater-compatibility*
+Compatibility                                  *nvim-updater-compatibility*
 
 --- Platform ---
 This plugin has been tested and configured primarily for Linux.
@@ -198,7 +234,7 @@ The plugin requires **Neovim 0.10+** due to its reliance
   functionality.
 
 ==============================================================================
-8. Contributing                                   *nvim-updater-contributions*
+Contributing                                   *nvim-updater-contributions*
 
 Contributions and suggestions are welcome! 
 
@@ -218,7 +254,7 @@ Provide the following details:
 4. Open a pull request on GitHub describing your changes.
 
 ==============================================================================
-9. License                                              *nvim-updater-license*
+License                                              *nvim-updater-license*
 
 This plugin is licensed under the MIT License. See the complete terms in 
 the LICENSE file included with this repository.

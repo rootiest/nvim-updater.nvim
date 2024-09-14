@@ -122,7 +122,48 @@ This command
 is useful if you want to clean up your source directory
 after you’ve built and installed Neovim.
 
----
+### Lua Functions
+
+The plugin exposes several Lua functions.
+
+The following functions are available in the `nvim_updater` namespace:
+
+#### Update Neovim from source
+
+```lua
+require("nvim_updater").update_neovim(options)
+```
+
+Available options:
+
+- **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+- **`build_type`**: The build type to use, e.g.,
+  `Release`, `Debug`, or `RelWithDebInfo`. Default is `RelWithDebInfo`.
+- **`branch`**: The branch to track when cloning Neovim. Default is `master`.
+
+#### Remove Neovim source
+
+```lua
+require("nvim_updater").remove_neovim_source(options)
+```
+
+Available options:
+
+- **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+
+#### Open floating terminal
+
+```lua
+require("nvim_updater").open_floating_terminal(options)
+```
+
+This is a helper function for opening a floating terminal that is used by the
+updater to display the terminal output.
+
+Available options:
+
+- **`cmd`**: Command to run in the terminal.
+- **`filetype`**: Filetype to assign to the terminal buffer.
 
 ## 📂 Filetype Integration
 
