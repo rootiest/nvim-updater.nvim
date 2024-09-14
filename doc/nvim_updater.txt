@@ -108,7 +108,7 @@ Available options:
 
 --- Remove Neovim source ---
 >lua
-  require("nvim_updater").remove_neovim_source(options)
+  require("nvim_updater").remove_source_dir(options)
 <
 Available options:
 - `source_dir`: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
@@ -123,6 +123,12 @@ updater to display the terminal output.
 Available options:
 - `cmd`: Command to run in the terminal.
 - `filetype`: Filetype to assign to the terminal buffer.
+
+--- Setup ---
+>lua
+require("nvim_updater").setup(options)
+<
+See |nvim-updater-config| for setup options.
 
 ==============================================================================
 Keymaps                                              *nvim-updater-keymaps*

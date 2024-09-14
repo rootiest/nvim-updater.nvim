@@ -53,7 +53,7 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ---
 
-## ⚙️ Configuration
+## ⚙️Configuration
 
 The `setup` function accepts an optional table to configure the plugin’s behavior.
 
@@ -144,7 +144,7 @@ Available options:
 #### Remove Neovim source
 
 ```lua
-require("nvim_updater").remove_neovim_source(options)
+require("nvim_updater").remove_source_dir(options)
 ```
 
 Available options:
@@ -164,6 +164,14 @@ Available options:
 
 - **`cmd`**: Command to run in the terminal.
 - **`filetype`**: Filetype to assign to the terminal buffer.
+
+#### Setup
+
+```lua
+require("nvim_updater").setup(options)
+```
+
+See [Configuration](⚙️Configuration) for setup options.
 
 ## 📂 Filetype Integration
 
