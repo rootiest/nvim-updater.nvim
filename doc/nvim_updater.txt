@@ -28,6 +28,11 @@ The nvim-updater plugin allows you to manage and update Neovim from the
 source code. It provides customizable options for the source directory, build
 type, branch, and user-defined keymaps for convenience.
 
+                              --- NOTE ---
+It is recommended to uninstall any distro-provided neovim packages after
+installing from source to prevent those updates from overwriting the locally
+built neovim binary.
+
 ==============================================================================
 Installation                                    *nvim-updater-installation*
 

@@ -4,6 +4,10 @@ This plugin allows you to easily update Neovim from source,
 with fully customizable options to define where the source is cloned,
 which branch is tracked, and the desired build type.
 
+> It is recommended to uninstall any distro-provided neovim packages after
+> installing from source to prevent those updates from overwriting the locally
+> built neovim binary.
+
 ## 📦 Installation and Setup (with lazy.nvim)
 
 To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
@@ -101,7 +105,7 @@ custom **key mappings** in the plugin’s setup
   If the source does not exist at the specified path,
   the repository is cloned and built.
 
-#### UpdateNeovim Example
+#### :UpdateNeovim
 
 ```vim
 :UpdateNeovim
@@ -112,7 +116,7 @@ and builds Neovim based on your configuration.
 
 - **`:RemoveNeovimSource`**: Removes the source directory.
 
-#### RemoveNeovimSource Example
+#### :RemoveNeovimSource
 
 ```vim
 :RemoveNeovimSource
