@@ -90,7 +90,7 @@ Example usage:
 <
 
 ==============================================================================
-Lua Functions                                        *nvim-updater-lua-funcs*
+Lua Functions                                      *nvim-updater-lua-funcs*
 
 The plugin exposes several Lua functions.
 
