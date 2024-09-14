@@ -6,7 +6,7 @@ local M = {}
 local default_config = {
 	source_dir = vim.fn.expand("~/.local/src/neovim"),
 	build_type = "RelWithDebInfo",
-	branch = "master", -- default branch
+	branch = "master",
 	keys = nil, -- No default custom keys provided
 }
 
@@ -26,10 +26,9 @@ local function setup_default_keymaps()
 		M.update_neovim({ build_type = "Release" })
 	end, { desc = "Update Neovim with Release build", noremap = true, silent = true })
 
-	-- Adding keybinding to update with the `release-0.10` branch as an example
-	vim.keymap.set("n", "<Leader>uB", function()
-		M.update_neovim({ branch = "release-0.10" })
-	end, { desc = "Update Neovim with development branch", noremap = true, silent = true })
+	vim.keymap.set("n", "<Leader>uC", function()
+		M.remove_source_dir()
+	end, { desc = "Remove Neovim source directory", noremap = true, silent = true })
 end
 
 ---@function directory_exists
@@ -37,7 +36,7 @@ end
 ---@param path string The directory path to check
 ---@return boolean exists True if the directory exists, false otherwise
 local function directory_exists(path)
-	local expanded_path = vim.fn.expand(path) -- Ensures the home directory tilde (~) is expanded correctly
+	local expanded_path = vim.fn.expand(path)
 	return vim.fn.isdirectory(expanded_path) == 1
 end
 
@@ -50,29 +49,25 @@ local function notify(message, level)
 end
 
 ---@function M.update_neovim
----Update Neovim according to user-configurable options
----@param opts table|nil Options table that can optionally include 'source_dir', 'build_type', and 'branch'
+---Update Neovim from source based on provided or default configuration options
+---@param opts table|nil Optional parameters 'source_dir', 'build_type', and 'branch'
 function M.update_neovim(opts)
 	opts = opts or {}
 	local source_dir = opts.source_dir or default_config.source_dir
 	local build_type = opts.build_type or default_config.build_type
 	local branch = opts.branch or default_config.branch
 
-	-- Use a more explicit notification for debugging
 	notify("Using source directory: " .. vim.inspect(source_dir), vim.log.levels.INFO)
 
-	-- Ensure path is properly expanded
 	local dir_exists = directory_exists(source_dir)
-
-	-- Prepare the shell commands based on the directory check
 	local git_commands = ""
 
 	if not dir_exists then
-		notify("Cloning Neovim repository to source: " .. source_dir .. " on branch " .. branch, vim.log.levels.INFO)
+		notify("Cloning Neovim repository into: " .. source_dir .. " on branch " .. branch, vim.log.levels.INFO)
 		git_commands = "git clone -b " .. branch .. " https://github.com/neovim/neovim " .. source_dir
 	else
-		notify("Checking out and pulling latest changes in branch: " .. branch, vim.log.levels.INFO)
-		git_commands = "cd " .. source_dir .. " && git fetch origin && git checkout " .. branch .. " && git pull"
+		notify("Updating Neovim source in branch: " .. branch, vim.log.levels.INFO)
+		git_commands = "cd " .. source_dir .. " && git checkout " .. branch .. " && git pull"
 	end
 
 	local build_commands = "cd "
@@ -90,7 +85,7 @@ end
 function M.open_floating_terminal(command)
 	local buf = vim.api.nvim_create_buf(false, true)
 	if not buf or buf == 0 then
-		vim.notify("Failed to create terminal buffer", vim.log.levels.ERROR)
+		notify("Failed to create terminal buffer", vim.log.levels.ERROR)
 		return
 	end
 
@@ -120,11 +115,15 @@ function M.open_floating_terminal(command)
 	vim.api.nvim_set_option_value("winblend", 10, { win = win })
 
 	vim.fn.termopen(command, {
-		on_exit = function()
-			if vim.api.nvim_win_is_valid(win) then
-				vim.api.nvim_win_close(win, true)
+		on_exit = function(_, exit_code)
+			if exit_code == 0 then
+				notify("Neovim update completed successfully!", vim.log.levels.INFO)
+				if vim.api.nvim_win_is_valid(win) then
+					vim.api.nvim_win_close(win, true)
+				end
+			else
+				notify("Neovim update failed with exit code: " .. exit_code, vim.log.levels.ERROR)
 			end
-			notify("Neovim update completed!", vim.log.levels.INFO)
 		end,
 	})
 
@@ -133,28 +132,63 @@ function M.open_floating_terminal(command)
 	vim.cmd("startinsert!")
 end
 
+---@function M.remove_source_dir
+---Remove the Neovim source directory, or a user-specified one
+---@param opts table|nil Optional table for 'source_dir'
+function M.remove_source_dir(opts)
+	opts = opts or {}
+	local source_dir = opts.source_dir or default_config.source_dir
+
+	if directory_exists(source_dir) then
+		local success = vim.fn.delete(source_dir, "rf")
+		if success == 0 then
+			notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO)
+		else
+			notify("Error removing Neovim source directory: " .. source_dir, vim.log.levels.ERROR)
+		end
+	else
+		notify("Source directory does not exist: " .. source_dir, vim.log.levels.WARN)
+	end
+end
+
 ---@function M.setup
----Setup function that initializes user configuration
+---Setup function initializing user configuration
 ---@param user_config table|nil User-provided config that overrides default values
 function M.setup(user_config)
-	-- Merge user config with default config
 	default_config = vim.tbl_deep_extend("force", default_config, user_config or {})
 
-	-- If the user doesn't specify `keys`, set default key mappings
 	if default_config.keys == nil then
 		setup_default_keymaps()
 	end
 
-	-- Setup user commands
 	M.setup_usercmd()
 end
 
 ---@function M.setup_usercmd
----Create a custom user command to update Neovim from source
+---Create user commands for both updating and removing Neovim source
 function M.setup_usercmd()
-	vim.api.nvim_create_user_command("UpdateNeovim", function()
-		M.update_neovim()
-	end, { desc = "Update Neovim from source" })
+	-- User command for updating Neovim with optional arguments for branch, build type, and source directory
+	vim.api.nvim_create_user_command("UpdateNeovim", function(opts)
+		local args = vim.split(opts.args, " ")
+		local branch = args[1] or default_config.branch
+		local build_type = args[2] or default_config.build_type
+		local source_dir = args[3] or default_config.source_dir
+
+		-- Update Neovim using the parsed arguments
+		M.update_neovim({ branch = branch, build_type = build_type, source_dir = source_dir })
+	end, {
+		desc = "Update Neovim with optional branch, build_type, and source_dir",
+		nargs = "*", -- Allows a flexible number of arguments
+	})
+
+	-- User command for removing the Neovim source directory, with an optional source_dir argument
+	vim.api.nvim_create_user_command("RemoveNeovimSource", function(opts)
+		local args = vim.split(opts.args, " ")
+		M.remove_source_dir({ source_dir = #args > 0 and args[1] or nil })
+	end, {
+		desc = "Remove Neovim source directory (can specify custom path)",
+		nargs = "?", -- Optional, single argument
+	})
 end
 
 return M
