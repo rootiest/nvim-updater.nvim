@@ -139,7 +139,7 @@ This allows you to perform conditional customizations with your statusline
 (e.g., hiding or showing certain statusline components) or for plugins 
 dependent on filetypes.
 
-#### Example lualine configuration to hide filename when using the updater term:
+Example lualine configuration to hide filename when using the updater term:
 
 >lua
   require("lualine").setup {
@@ -186,27 +186,32 @@ wish to hide when using the updater.
 ==============================================================================
 7. Compatibility                                  *nvim-updater-compatibility*
 
-- **Platform**: This plugin has been tested and configured primarily for Linux.
+--- Platform ---
+This plugin has been tested and configured primarily for Linux.
   It may also work on macOS or other platforms, but assumes Linux-based 
   functionality with hardcoded calls like `sudo make install`.
 
-- **Neovim Version**: The plugin requires **Neovim 0.10+** due to its reliance 
-  on newer APIs (such as `nvim_set_option_value` which replaces deprecated API 
-  calls). Ensure you're running a compatible version for optimal functionality.
+--- Neovim Version ---
+The plugin requires **Neovim 0.10+** due to its reliance 
+  on newer APIs (such as `nvim_set_option_value` which replaces deprecated 
+  API calls). Ensure you're running a compatible version for optimal 
+  functionality.
 
 ==============================================================================
 8. Contributing                                   *nvim-updater-contributions*
 
-Contributions and suggestions are welcome! Feel free to open GitHub issues with
+Contributions and suggestions are welcome! 
+
+Feel free to open GitHub issues with 
 feature requests, bug reports, or pull requests.
 
-#### Filing an Issue
+--- Filing an Issue ---
 Provide the following details:
 1. Neovim version (`nvim --version`).
 2. Exact error messages or logs.
 3. Steps to reproduce, if applicable.
 
-#### Submitting a Pull Request
+--- Submitting a Pull Request ---
 1. Fork the repository.
 2. Create a new branch for your updates.
 3. Add new functionality or fix bugs and ensure tests (if any) pass.
