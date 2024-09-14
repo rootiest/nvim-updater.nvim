@@ -4,9 +4,17 @@ This plugin allows you to easily update Neovim from source,
 with fully customizable options to define where the source is cloned,
 which branch is tracked, and the desired build type.
 
+## 🔧 Prerequisites
+
+- A Linux system (macOS and Windows are not supported by this plugin)
+- [Neovim 0.10+](https://neovim.io/)
+  (earlier versions may work, but could encounter issues)
+- [Build prerequisites](https://github.com/neovim/neovim/blob/master/BUILD.md#build-prerequisites)
+  for your platform
+
 > It is recommended to uninstall any distro-provided neovim packages after
-> installing from source to prevent those updates from overwriting the locally
-> built neovim binary.
+> installing from source (with this plugin or manually) to prevent those
+> distro-packaged updates from overwriting the locally-built neovim binary.
 
 ## 📦 Installation and Setup (with lazy.nvim)
 
@@ -239,7 +247,7 @@ wish to hide when using the updater.
 
 - **Platform:** The plugin is primarily developed for Linux environments.
   Although it may work on macOS or other platforms,
-  `sudo make install` is hardcoded and assumes a Linux-based setup.
+  `sudo make install` is hard-coded and assumes a Linux-based setup.
 - **Neovim Version:** This plugin requires **Neovim 0.10+** to operate correctly,
   as it depends on specific Lua API features.
 
@@ -251,7 +259,7 @@ If you find any issues or have suggestions for improvement,
 feel free to open a GitHub issue or send a pull request.
 We welcome contributions!
 
-### Filing an Issue
+### 🐛 Filing an Issue
 
 Be sure to include the following information when reporting bugs:
 
@@ -259,7 +267,7 @@ Be sure to include the following information when reporting bugs:
 2. Error messages from Neovim (if any).
 3. Steps to reproduce the issue.
 
-### PR Submission Guidelines
+### 🚀 PR Submission Guidelines
 
 1. Fork the repository.
 2. Create a new branch for your feature or fix.

@@ -11,6 +11,7 @@ License: MIT
 ==============================================================================
 CONTENTS                                               *nvim-updater-contents*
 |nvim-updater-intro|            Introduction
+|nvim-updater-prereqs|          Prerequisites
 |nvim-updater-installation|     Installation
 |nvim-updater-commands|         Commands
 |nvim-updater-lua-funcs|        Lua Functions
@@ -28,23 +29,38 @@ The nvim-updater plugin allows you to manage and update Neovim from the
 source code. It provides customizable options for the source directory, build
 type, branch, and user-defined keymaps for convenience.
 
-                              --- NOTE ---
 It is recommended to uninstall any distro-provided neovim packages after
 installing from source to prevent those updates from overwriting the locally
 built neovim binary.
 
 ==============================================================================
+Prerequisites                                        *nvim-updater-prereqs*
+
+- A Linux system (macOS and Windows are not supported by this plugin)
+
+- Neovim 0.10+ (earlier versions may work, but could encounter issues)
+  https://neovim.io/
+
+- Build prerequisites for your platform:
+  https://github.com/neovim/neovim/blob/master/BUILD.md#build-prerequisites
+
+                              --- NOTE ---
+It is recommended to uninstall any distro-provided neovim packages after
+installing from source (with this plugin or manually) to prevent those
+distro-packaged updates from overwriting the locally-built neovim binary.
+
+==============================================================================
 Installation                                    *nvim-updater-installation*
 
 Example setup using lazy.nvim:
-
 >lua
   require("lazy").setup({
     "rootiest/nvim-updater.nvim",
     config = function()
-      require("nvim-updater").setup({
-        source_dir = "~/.local/src/neovim", -- Custom target directory
-        build_type = "RelWithDebInfo", -- Set the desired build type
+      require("nvim_updater").setup({
+        source_dir = "~/.local/src/neovim",  -- Custom target directory
+        build_type = "RelWithDebInfo",       -- Set the desired build type
+        branch = "master",                   -- Track nightly branch
       })
     end,
 
@@ -69,7 +85,6 @@ Example setup using lazy.nvim:
     },
   })
 <
-
 ==============================================================================
 Commands                                            *nvim-updater-commands*
 
@@ -93,7 +108,6 @@ Example usage:
 >vim
   :RemoveNeovimSource
 <
-
 ==============================================================================
 Lua Functions                                      *nvim-updater-lua-funcs*
 
@@ -171,15 +185,13 @@ Available configuration fields:
                                default keymaps will be set.
 
 Example setup with custom settings:
-
 >lua
   require("nvim-updater").setup({
     source_dir = "~/projects/neovim",  -- Custom source directory
     build_type = "Release",            -- Use Release mode
-    branch = "stable",                 -- Track stable branch
+    branch = "release-0.10",           -- Track release branch
   })
 <
-
 ==============================================================================
 Filetype integration                                *nvim-updater-filetype*
 
@@ -191,7 +203,6 @@ This allows you to perform conditional customizations with your statusline
 dependent on filetypes.
 
 Example lualine configuration to hide filename when using the updater term:
-
 >lua
   require("lualine").setup {
     sections = {
@@ -222,7 +233,6 @@ Example lualine configuration to hide filename when using the updater term:
     -- Other lualine components
   }
 <
-
 This configuration hides the file name in lualine when the 
 `neovim_updater_term` filetype is detected and shows the 
 `Neovim Updating` component instead.
