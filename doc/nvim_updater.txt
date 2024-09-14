@@ -1,4 +1,4 @@
-*nvim-updater*   Neovim Updater Plugin Documentation
+*nvim-updater.txt*   Neovim Updater Plugin Documentation
 *nvim_updater* *neovim-updater* *neovim_updater*
 
 ==============================================================================
@@ -23,7 +23,7 @@ CONTENTS                                               *nvim-updater-contents*
 ==============================================================================
 1. Introduction                                           *nvim-updater-intro*
 
-The *nvim-updater* plugin allows you to manage and update Neovim from the
+The nvim-updater plugin allows you to manage and update Neovim from the
 source code. It provides customizable options for the source directory, build
 type, branch, and user-defined keymaps for convenience.
 
