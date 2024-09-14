@@ -101,7 +101,7 @@ custom **key mappings** in the plugin’s setup
   If the source does not exist at the specified path,
   the repository is cloned and built.
 
-#### Example
+#### UpdateNeovim Example
 
 ```vim
 :UpdateNeovim
@@ -109,6 +109,18 @@ custom **key mappings** in the plugin’s setup
 
 This command pulls the latest changes from the source
 and builds Neovim based on your configuration.
+
+- **`:RemoveNeovimSource`**: Removes the source directory.
+
+#### RemoveNeovimSource Example
+
+```vim
+:RemoveNeovimSource
+```
+
+This command
+is useful if you want to clean up your source directory
+after you’ve built and installed Neovim.
 
 ---
 
