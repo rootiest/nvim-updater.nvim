@@ -4,6 +4,8 @@ This plugin allows you to easily update Neovim from source,
 with fully customizable options to define where the source is cloned,
 which branch is tracked, and the desired build type.
 
+All without leaving Neovim.
+
 ## 🔧 Prerequisites
 
 - A Linux system (macOS and Windows are not supported by this plugin)
