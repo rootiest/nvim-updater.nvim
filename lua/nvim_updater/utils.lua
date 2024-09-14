@@ -2,6 +2,47 @@
 
 local U = {}
 
+--- Adds an icon to a health check message based on severity type (ok, warn, error, info)
+---@param msg_type string The type of health check message ('ok', 'warn', 'error', 'info')
+---@param message string The actual message content
+---@return string The message prepended with the appropriate icon
+function U.add_icon_to_message(msg_type, message)
+	local icons = {
+		ok = "󰱒", -- Icon for success (OK)
+		warn = "", -- Icon for warning (WARN)
+		error = "", -- Icon for error (ERROR)
+		info = "", -- Icon for information (INFO)
+	}
+
+	-- Select the correct icon based on the message type
+	local icon = icons[msg_type] or ""
+	return icon .. " " .. message
+end
+
+--- Prints a health check message based on its type, automatically appending an appropriate icon.
+--- This abstracts away the manual use of health.ok, health.warn, etc.
+---@param msg_type string The health message type ('ok', 'warn', 'error', 'info')
+---@param message string The health message content
+function U.health_msg(msg_type, message)
+	local health = vim.health or require("health") -- Maintain compatibility with older versions
+
+	-- Add icon to the message using the defined helper
+	local formatted_message = U.add_icon_to_message(msg_type, message)
+
+	-- Call corresponding health function depending on the message type
+	if msg_type == "ok" then
+		health.ok(formatted_message)
+	elseif msg_type == "warn" then
+		health.warn(formatted_message)
+	elseif msg_type == "error" then
+		health.error(formatted_message)
+	elseif msg_type == "info" then
+		health.info(formatted_message)
+	else
+		vim.notify("Invalid message type passed to health_msg: " .. msg_type, vim.log.levels.WARN)
+	end
+end
+
 --- Helper to heck if a directory exists
 ---@function directory_exists
 ---@param path string The directory path to check
