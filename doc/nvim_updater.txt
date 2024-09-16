@@ -4,7 +4,7 @@
 ==============================================================================
 Neovim Updater Plugin                                           *nvim-updater*
 
-Author: rootiest <github.com/rootiest>
+Author: Chris Laprade <github.com/rootiest>
 Version: 1.0
 License: MIT
 
@@ -18,6 +18,7 @@ CONTENTS                                               *nvim-updater-contents*
 |nvim-updater-keymaps|          Keymaps
 |nvim-updater-config|           Configuration
 |nvim-updater-filetype|         filetype integration
+|nvim-updater-external|         External Use
 |nvim-updater-compatibility|    Compatibility
 |nvim-updater-contributions|    Contributions
 |nvim-updater-license|          License
@@ -246,6 +247,68 @@ when using the updater and instead display a customized
 
 The condition can also be applied to any other components you 
 wish to hide when using the updater.
+
+
+==============================================================================
+External Use                                      *nvim-updater-external*
+
+You can also use this plugin to update Neovim directly from
+the command line or from the desktop.
+
+This is achieved by the use of an environment variable.
+
+The `NVIMUPDATER_HEADLESS` environment variable can be set
+to enable headless mode. In this mode, Neovim will be exited
+immediately after the update completes.
+
+--- Command Line ---
+
+After installing the plugin, you can run the following command:
+>sh
+NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
+<
+
+This command will open Neovim directly to the updater.
+
+- If/when the update completes successfully, it will exit back to the command line.
+
+- If an error occurs, the updater window will remain open until you close it.
+
+You can also alias this command to a shortcut like `nvimup`:
+
+`bash/zsh`:
+>bash
+alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+<
+
+`fish`:
+>fish
+alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+<
+
+This will allow you to simply run `nvimup` from anywhere in your terminal.
+
+--- Desktop Shortcut ---
+
+You can also create a desktop shortcut for this command like so:
+
+**nvimup.desktop:**
+```desktop
+[Desktop Entry]
+Name=Neovim Updater
+Exec=env NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
+Terminal=true
+Type=Application
+Icon=nvim
+```
+
+Place this file in your `~/.local/share/applications` directory.
+
+You will then have a shortcut available in your system's application menu
+for updating Neovim called `Neovim Updater`. This shortcut will open the
+updater in your default terminal emulator.
+
+
 
 ==============================================================================
 Compatibility                                  *nvim-updater-compatibility*
