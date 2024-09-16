@@ -291,7 +291,7 @@ This will allow you to simply run `nvimup` from anywhere in your terminal.
 
 You can also create a desktop shortcut for this command like so:
 
-**nvimup.desktop:**
+`nvimup.desktop`:
 >desktop
 [Desktop Entry]
 Name=Neovim Updater
@@ -307,10 +307,10 @@ You will then have a shortcut available in your system's application menu
 for updating Neovim called `Neovim Updater`. This shortcut will open the
 updater in your default terminal emulator.
 
-To use a specific terminal emulator, you can modify the 
-desktop file like so:
+To use a specific terminal emulator instead of the default,
+you can modify the desktop file like so:
 
-kitty-nvimup.desktop
+`kitty-nvimup.desktop`:
 >desktop
 [Desktop Entry]
 Name=Neovim Updater (kitty)

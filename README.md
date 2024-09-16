@@ -285,13 +285,13 @@ This command will open Neovim directly to the updater.
 
 You can also alias this command to a shortcut like `nvimup`:
 
-**bash/zsh:**
+**bash/zsh**:
 
 ```bash
 alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
 ```
 
-**fish:**
+**fish**:
 
 ```fish
 alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
@@ -303,7 +303,7 @@ This will allow you to simply run `nvimup` from anywhere in your terminal.
 
 You can also create a desktop shortcut for this command like so:
 
-**nvimup.desktop:**
+**nvimup.desktop**:
 
 ```desktop
 [Desktop Entry]
@@ -317,13 +317,14 @@ Icon=nvim
 Place this file in your `~/.local/share/applications` directory.
 
 You will then have a shortcut available in your system's application menu
-for updating Neovim called `Neovim Updater`. This shortcut will open the
-updater in your default terminal emulator.
+for updating Neovim called  
+`Neovim Updater`. This shortcut will open the updater in your
+default terminal emulator.
 
-To use a specific terminal emulator, you can modify the
-desktop file like so:
+To use a specific terminal emulator instead of the default,
+you can modify the desktop file like so:
 
-**kitty-nvimup.desktop:**
+**kitty-nvimup.desktop**:
 
 ```desktop
 [Desktop Entry]
