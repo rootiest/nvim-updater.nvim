@@ -130,6 +130,10 @@ function U.open_floating_terminal(command, filetype)
 				if vim.api.nvim_win_is_valid(win) then
 					vim.api.nvim_win_close(win, true)
 				end
+				-- If NVIMUPDATER_HEADLESS is set, exit immediately
+				if os.getenv("NVIMUPDATER_HEADLESS") then
+					vim.cmd("qa")
+				end
 			else
 				vim.notify(
 					"Command failed with exit code: " .. exit_code,
