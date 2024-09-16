@@ -270,9 +270,8 @@ NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
 
 This command will open Neovim directly to the updater.
 
-- If/when the update completes successfully, it will exit back to the command line.
-
-- If an error occurs, the updater window will remain open until you close it.
+- If the update completes successfully, Neovim will be closed.
+- If the update fails, the window will be kept open.
 
 You can also alias this command to a shortcut like `nvimup`:
 
@@ -293,14 +292,14 @@ This will allow you to simply run `nvimup` from anywhere in your terminal.
 You can also create a desktop shortcut for this command like so:
 
 **nvimup.desktop:**
-```desktop
+>desktop
 [Desktop Entry]
 Name=Neovim Updater
 Exec=env NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
 Terminal=true
 Type=Application
 Icon=nvim
-```
+<
 
 Place this file in your `~/.local/share/applications` directory.
 
@@ -308,7 +307,20 @@ You will then have a shortcut available in your system's application menu
 for updating Neovim called `Neovim Updater`. This shortcut will open the
 updater in your default terminal emulator.
 
+To use a specific terminal emulator, you can modify the 
+desktop file like so:
 
+kitty-nvimup.desktop
+>desktop
+[Desktop Entry]
+Name=Neovim Updater (kitty)
+Exec=env NVIMUPDATER_HEADLESS=1 kitty nvim "+UpdateNeovim"
+Terminal=false
+Type=Application
+Icon=nvim
+<
+This example uses the `kitty` terminal emulator.
+You can substitute `kitty` with any terminal emulator of your choice.
 
 ==============================================================================
 Compatibility                                  *nvim-updater-compatibility*
