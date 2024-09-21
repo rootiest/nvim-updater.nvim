@@ -140,26 +140,50 @@ custom **key mappings** in the plugin’s setup
   If the source does not exist at the specified path,
   the repository is cloned and built.
 
-#### :UpdateNeovim
-
-```vim
-:UpdateNeovim
-```
+  ```vim
+  :UpdateNeovim
+  ```
 
 This command pulls the latest changes from the source
 and builds Neovim based on your configuration.
 
 - **`:RemoveNeovimSource`**: Removes the source directory.
 
-#### :RemoveNeovimSource
+  ```vim
+  :RemoveNeovimSource
+  ```
 
-```vim
-:RemoveNeovimSource
-```
-
-This command
-is useful if you want to clean up your source directory
+This command is useful if you want to clean up your source directory
 after you’ve built and installed Neovim.
+
+- **`:NVUpdateShowNewCommits`**: Shows new updates available.
+
+  ```vim
+  :NVUpdateShowNewCommits
+  ```
+
+  This command allows you to check for new updates and show the changes
+  in a floating terminal.
+
+- **`:NVUpdateShowNewCommitsInDiffView`**: Shows new updates available in
+  the [DiffView](https://github.com/sindrets/diffview.nvim) plugin.
+
+  ```vim
+  :NVUpdateShowNewCommitsInDiffView
+  ```
+
+  This command allows you to check for new updates and show the changes
+  in the [DiffView](https://github.com/sindrets/diffview.nvim) plugin.
+
+- **`:NVUpdateShowNewCommitsInTelescope`**: Shows new updates available in
+  the [Telescope](https://github.com/nvim-telescope/telescope.nvim) plugin.
+
+  ```vim
+  :NVUpdateShowNewCommitsInTelescope
+  ```
+
+  This command allows you to check for new updates and show the changes
+  in the [Telescope](https://github.com/nvim-telescope/telescope.nvim) plugin.
 
 ### Lua Functions
 
@@ -189,6 +213,37 @@ require("nvim_updater").remove_source_dir(options)
 Available options:
 
 - **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+
+#### Show new commits
+
+```lua
+ require("nvim_updater.utils").show_new_commits(options)
+```
+
+This function opens a floating terminal with the new commits/changes on
+the remote repository vs the local src directory.
+
+Available options:
+
+- `isupdate`: Whether to prompt for updating after showing the changes.
+
+#### Show new commits in DiffView
+
+```lua
+ require("nvim_updater.utils").show_new_commits_in_diffview()
+```
+
+This function opens [DiffView](https://github.com/sindrets/diffview.nvim)
+with the new commits/changes on the remote repository vs the local src directory.
+
+#### Show new commits in Telescope
+
+```lua
+ require("nvim_updater.utils").show_new_commits_in_telescope()
+```
+
+This function opens [Telescope](https://github.com/nvim-telescope/telescope.nvim)
+with the new commits/changes on the remote repository vs the local src directory.
 
 #### Open floating terminal
 

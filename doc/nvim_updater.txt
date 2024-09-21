@@ -97,9 +97,9 @@ Commands                                            *nvim-updater-commands*
 Available commands:
 
 |:UpdateNeovim|    - Updates Neovim from source using current configuration.
-                    If this is the first time using it, it will clone the
-                    repository, otherwise, it will pull the latest changes then
-                    build it using the defined build type.
+                     If this is the first time using it, it will clone the
+                     repository, otherwise, it will pull the latest changes
+                     then build it using the defined build type.
 
 Example usage:
 >vim
@@ -107,12 +107,37 @@ Example usage:
 <
 
 |:RemoveNeovimSource| - Removes the source directory.
-                       This allows you to clear out the source directory
-                       after updating Neovim.
-                       
+                        This allows you to clear out the source directory
+                        after updating Neovim.
+
 Example usage:
 >vim
  :RemoveNeovimSource
+<
+
+|:NVUpdateShowNewCommits| - Shows new updates available.
+                            This command allows you to check for new updates
+                            and show the changes in a floating terminal.
+
+Example usage:
+>vim
+ :NVUpdateShowNewCommits
+<
+
+|:NVUpdateShowNewCommitsInDiffView| - Shows new updates available in
+                                      the DiffView plugin.
+
+Example usage:
+>vim
+ :NVUpdateShowNewCommitsInDiffView
+<
+
+|:NVUpdateShowNewCommitsInTelescope| - Shows new updates available in
+                                       the Telescope plugin.
+
+Example usage:
+>vim
+ :NVUpdateShowNewCommitsInTelescope
 <
 ==============================================================================
 Lua Functions                                      *nvim-updater-lua-funcs*
@@ -141,6 +166,30 @@ Available options:
 Available options:
 - `source_dir`: Path to where the Neovim source is cloned.
                 Default is `~/.local/src/neovim`.
+
+--- Show new commits ---
+>lua
+ require("nvim_updater.utils").show_new_commits(options)
+<
+This function opens a floating terminal with the new commits/changes on
+the remote repository vs the local src directory.
+
+Available options:
+- `isupdate`: Whether to prompt for updating after showing the changes.
+
+--- Show new commits in DiffView ---
+>lua
+ require("nvim_updater.utils").show_new_commits_in_diffview()
+<
+This function opens DiffView with the new commits/changes on
+the remote repository vs the local src directory.
+
+--- Show new commits in Telescope ---
+>lua
+ require("nvim_updater.utils").show_new_commits_in_telescope()
+<
+This function opens Telescope with the new commits/changes on
+the remote repository vs the local src directory.
 
 --- Open floating terminal ---
 >lua
