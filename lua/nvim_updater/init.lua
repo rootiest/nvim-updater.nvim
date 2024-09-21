@@ -291,7 +291,7 @@ function P.show_new_commits(isupdate)
 		else
 			utils.notify("No new Neovim commits.", vim.log.levels.INFO)
 			-- Update status count
-			P.last_status.count = 0
+			P.last_status.count = "0"
 		end
 	else
 		utils.notify("Failed to retrieve commit logs.", vim.log.levels.ERROR)
