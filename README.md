@@ -8,7 +8,7 @@ All without leaving Neovim.
 
 ## Demo
 
-[Demo](./.img/nvim_updater.webm)
+https://github.com/rootiest/nvim-updater.nvim/raw/refs/heads/main/.img/nvim_updater.webm
 
 ## 🔧 Prerequisites
 
