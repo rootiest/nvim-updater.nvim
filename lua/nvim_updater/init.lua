@@ -268,15 +268,31 @@ function P.show_new_commits(isupdate)
 
 	local current_branch = vim.fn.system(current_branch_cmd):gsub("%s+", "") -- Trim whitespace
 
+	-- Build the command to count new commits in the remote branch
+	local commit_count_cmd = ("cd %s && git rev-list --count %s..origin/%s"):format(
+		source_dir,
+		current_branch,
+		current_branch
+	)
+
+	-- Execute the command to get the count of new commits
+	local commit_count = vim.fn.system(commit_count_cmd):gsub("%s+", "") -- Trim whitespace
+
 	-- Check for errors in executing the command
 	if vim.v.shell_error == 0 then
-		-- Display the commit logs
-		utils.notify("Opening Neovim changes in terminal", vim.log.levels.INFO)
-		-- Open the terminal in a new window
-		local term_command = ("cd %s && git log %s..origin/%s"):format(source_dir, current_branch, current_branch)
-		utils.open_floating_terminal(term_command, "neovim_updater_term", isupdate)
-		-- Enter insert mode
-		vim.api.nvim_feedkeys("i", "n", true)
+		if tonumber(commit_count) > 0 then
+			-- Display the commit logs
+			utils.notify("Opening Neovim changes in terminal", vim.log.levels.INFO)
+			-- Open the terminal in a new window
+			local term_command = ("cd %s && git log %s..origin/%s"):format(source_dir, current_branch, current_branch)
+			utils.open_floating_terminal(term_command, "neovim_updater_term", isupdate)
+			-- Enter insert mode
+			vim.api.nvim_feedkeys("i", "n", true)
+		else
+			utils.notify("No new Neovim commits.", vim.log.levels.INFO)
+			-- Update status count
+			P.last_status.count = 0
+		end
 	else
 		utils.notify("Failed to retrieve commit logs.", vim.log.levels.ERROR)
 	end
