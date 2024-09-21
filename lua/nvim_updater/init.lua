@@ -322,7 +322,7 @@ function P.show_new_commits(isupdate)
 			utils.notify("Opening Neovim changes in terminal", vim.log.levels.INFO)
 			-- Open the terminal in a new window
 			local term_command = ("cd %s && git log %s..origin/%s"):format(source_dir, current_branch, current_branch)
-			utils.open_floating_terminal(term_command, "neovim_updater_term", isupdate)
+			utils.open_floating_terminal(term_command, "neovim_updater_term", isupdate, false)
 			-- Enter insert mode
 			vim.api.nvim_feedkeys("i", "n", true)
 		else
