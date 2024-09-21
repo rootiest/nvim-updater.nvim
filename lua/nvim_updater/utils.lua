@@ -210,23 +210,69 @@ function U.open_floating_terminal(command, filetype, isupdate)
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
 	vim.api.nvim_set_option_value("winblend", 10, { win = win })
 
+	-- Create the closing callback
+	local closing = function()
+		-- Close the terminal window
+		if vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_close(win, true)
+		end
+		-- If NVIMUPDATER_HEADLESS is set, exit immediately
+		if os.getenv("NVIMUPDATER_HEADLESS") then
+			vim.cmd("qa")
+		end
+		-- If isupdate is true, execute NVUpdateNeovim
+		if isupdate then
+			U.ConfirmPrompt("Perform Neovim update?", function()
+				require("nvim_updater").update_neovim()
+			end)
+		end
+	end
+
 	-- Run the terminal command
 	vim.fn.termopen(command, {
 		on_exit = function(_, exit_code)
 			if exit_code == 0 then
-				if vim.api.nvim_win_is_valid(win) then
-					vim.api.nvim_win_close(win, true)
-				end
-				-- If NVIMUPDATER_HEADLESS is set, exit immediately
-				if os.getenv("NVIMUPDATER_HEADLESS") then
-					vim.cmd("qa")
-				end
-				-- If isupdate is true, execute NVUpdateNeovim
-				if isupdate then
-					U.ConfirmPrompt("Perform Neovim update?", function()
-						require("nvim_updater").update_neovim()
-					end)
-				end
+				-- Wait for a keypress before closing the terminal window
+				vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
+					noremap = true,
+					silent = true,
+					callback = function()
+						closing()
+					end,
+					desc = "Close terminal window",
+				})
+				vim.api.nvim_buf_set_keymap(buf, "n", "<Space>", "", {
+					noremap = true,
+					silent = true,
+					callback = function()
+						closing()
+					end,
+					desc = "Close terminal window",
+				})
+				vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
+					noremap = true,
+					silent = true,
+					callback = function()
+						closing()
+					end,
+					desc = "Close terminal window",
+				})
+				vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "", {
+					noremap = true,
+					silent = true,
+					callback = function()
+						closing()
+					end,
+					desc = "Close terminal window",
+				})
+				vim.api.nvim_buf_set_keymap(buf, "n", "y", "", {
+					noremap = true,
+					silent = true,
+					callback = function()
+						closing()
+					end,
+					desc = "Close terminal window",
+				})
 			else
 				U.notify("Command failed with exit code: " .. exit_code, vim.log.levels.ERROR)
 				vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
