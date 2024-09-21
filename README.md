@@ -8,7 +8,7 @@ All without leaving Neovim.
 
 ## Demo
 
-https://github.com/rootiest/nvim-updater.nvim/raw/refs/heads/main/.img/nvim_updater.webm
+[Update from source](https://github.com/user-attachments/assets/bdec554c-3571-4c34-94ce-f82f7a188e75)
 
 ## 🔧 Prerequisites
 
@@ -376,9 +376,10 @@ require("lualine").setup {
 
 This will produce statusline components like this:
 
-![lualine_up2date](./.img/lualine_up2date.png)
+![Lualine up-to-date](https://github.com/user-attachments/assets/9e57c41b-cb1c-419a-828c-4399919af980)
 
-![lualine_updates](./.img/lualine_updates.png)
+![Lualine has-updates](https://github.com/user-attachments/assets/7b0cb567-23ad-4b83-8aae-2a0e0eedf724)
+
 
 Clicking on the component will open the changelog in a floating terminal.
 
