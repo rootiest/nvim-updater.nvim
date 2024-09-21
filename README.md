@@ -6,6 +6,10 @@ which branch is tracked, and the desired build type.
 
 All without leaving Neovim.
 
+## Demo
+
+[Demo](./.img/nvim_updater.webm)
+
 ## 🔧 Prerequisites
 
 - A Linux system (macOS and Windows are not supported by this plugin)
