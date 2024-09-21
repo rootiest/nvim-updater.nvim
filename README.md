@@ -8,7 +8,9 @@ All without leaving Neovim.
 
 ## Demo
 
-[Update from source](https://github.com/user-attachments/assets/bdec554c-3571-4c34-94ce-f82f7a188e75)
+[nvim-updater.webm](https://github.com/user-attachments/assets/dcf5dba0-837d-4ac5-9fb6-ef5a1bd2ae4a)
+
+The above video shows an example of the update workflow with the Neovim Updater plugin.
 
 ## 🔧 Prerequisites
 
@@ -379,7 +381,6 @@ This will produce statusline components like this:
 ![Lualine up-to-date](https://github.com/user-attachments/assets/9e57c41b-cb1c-419a-828c-4399919af980)
 
 ![Lualine has-updates](https://github.com/user-attachments/assets/7b0cb567-23ad-4b83-8aae-2a0e0eedf724)
-
 
 Clicking on the component will open the changelog in a floating terminal.
 
