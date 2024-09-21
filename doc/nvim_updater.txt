@@ -58,6 +58,8 @@ Example setup using lazy.nvim:
         source_dir = "~/.local/src/neovim",  -- Custom target directory
         build_type = "RelWithDebInfo",       -- Set the desired build type
         branch = "master",                   -- Track nightly branch
+        check_for_updates = true,            -- Enable automatic update checks
+        default_keymaps = false,             -- Disable default keymaps
       })
     end,
     keys = { -- Custom keymappings
@@ -110,7 +112,7 @@ Example usage:
                        
 Example usage:
 >vim
-  :RemoveNeovimSource
+ :RemoveNeovimSource
 <
 ==============================================================================
 Lua Functions                                      *nvim-updater-lua-funcs*
@@ -121,7 +123,7 @@ The following functions are available in the `nvim_updater` namespace:
 
 --- Update Neovim from source ---
 >lua
-  require("nvim_updater").update_neovim(options)
+ require("nvim_updater").update_neovim(options)
 <
 Available options:
 - `source_dir`: Path to where the Neovim source is cloned.
@@ -134,7 +136,7 @@ Available options:
 
 --- Remove Neovim source ---
 >lua
-  require("nvim_updater").remove_source_dir(options)
+ require("nvim_updater").remove_source_dir(options)
 <
 Available options:
 - `source_dir`: Path to where the Neovim source is cloned.
@@ -142,7 +144,7 @@ Available options:
 
 --- Open floating terminal ---
 >lua
-  require("nvim_updater.utils").open_floating_terminal(options)
+ require("nvim_updater.utils").open_floating_terminal(options)
 <
 This is a helper function for opening a floating terminal that is used by the
 updater to display the terminal output.
@@ -153,7 +155,7 @@ Available options:
 
 --- Setup ---
 >lua
-  require("nvim_updater").setup(options)
+ require("nvim_updater").setup(options)
 <
 See |nvim-updater-config| for setup options.
 
@@ -175,26 +177,39 @@ Configuration                                         *nvim-updater-config*
 The plugin's setup function accepts an optional configuration table.
 Available configuration fields:
 
-- source_dir  (string) - Path where Neovim will be cloned or updated. 
-                         Default: `~/.local/src/neovim`
+- `source_dir`  (string) - Path where Neovim will be cloned or updated.
+                           Default: `~/.local/src/neovim`
 
-- build_type  (string) - Specify the CMake build type, e.g., `Release`, 
-                         `Debug`, or `RelWithDebInfo`. 
-                         Default: `RelWithDebInfo`.
+- `build_type`  (string) - Specify the CMake build type, e.g., `Release`,
+                           `Debug`, or `RelWithDebInfo`.
+                           Default: `RelWithDebInfo`
 
-- branch      (string) - Git branch to track for updates.
-                         Default: `master`
+- `branch`  (string) - Git branch to track for updates.
+                       Default: `master`
 
-- keys        (table or nil) - Optional key mappings. If `nil`, 
-                               default keymaps will be set.
+- `verbose`  (boolean) - Enable verbose output.
+                         Default: `false`
+
+- `check_for_updates`  (boolean) - Enable automatic update checks.
+                                   Default: `false`
+
+- `update_interval`  (number) - Update interval in seconds.
+                                Default: `6 hours`
+
+- `default_keymaps`  (boolean) - Enable default keymaps.
+                                 Default: `true`
 
 Example setup with custom settings:
 >lua
-  require("nvim-updater").setup({
-    source_dir = "~/projects/neovim",  -- Custom source directory
-    build_type = "Release",            -- Use Release mode
-    branch = "release-0.10",           -- Track release branch
-  })
+ require("nvim_updater").setup({
+   source_dir = "~/projects/neovim",  -- Custom source directory
+   build_type = "Release",            -- Use Release mode for building
+   branch = "release-0.10",           -- Track release branch
+   verbose = false,                   -- Disable verbose output
+   check_for_updates = false,         -- Disable automatic update checks
+   update_interval = (60 * 60) * 6,   -- 6 hours default update interval
+   default_keymaps = true,            -- Enable default keymaps
+ })
 <
 ==============================================================================
 Filetype integration                                *nvim-updater-filetype*
@@ -208,34 +223,34 @@ dependent on filetypes.
 
 Example lualine configuration to hide filename when using the updater term:
 >lua
-  require("lualine").setup {
-    sections = {
-      lualine_a = { "mode" },
-      lualine_b = { "branch" },
-      lualine_c = {
-        { -- Hide filename when using the updater
-          "filename",
-          cond = function()
-            return vim.bo.filetype ~= "neovim_updater_term"
-          end,
-        },
-        { -- Neovim Updater
-          function()
-            return "Neovim Updating.."
-          end,
-          icon = "󰅢 ",
-          -- Use the lualine_a highlight for emphasis
-          color = "lualine_a_terminal",
-          -- Use bubble separators
-          separator = { left = "", right = "" },
-          -- Show only when using the updater
-          cond = function()
-            return vim.bo.filetype == "neovim_updater_term"
-          end,
-        },
-    },
-    -- Other lualine components
-  }
+ require("lualine").setup {
+   sections = {
+     lualine_a = { "mode" },
+     lualine_b = { "branch" },
+     lualine_c = {
+       { -- Hide filename when using the updater
+         "filename",
+         cond = function()
+           return vim.bo.filetype ~= "neovim_updater_term"
+         end,
+       },
+       { -- Neovim Updater
+         function()
+           return "Neovim Updating.."
+         end,
+         icon = "󰅢 ",
+         -- Use the lualine_a highlight for emphasis
+         color = "lualine_a_terminal",
+         -- Use bubble separators
+         separator = { left = "", right = "" },
+         -- Show only when using the updater
+         cond = function()
+           return vim.bo.filetype == "neovim_updater_term"
+         end,
+       },
+   },
+   -- Other lualine components
+ }
 <
 This configuration hides the file name in lualine when the 
 `neovim_updater_term` filetype is detected and shows the 
@@ -277,12 +292,12 @@ You can also alias this command to a shortcut like `nvimup`:
 
 `bash/zsh`:
 >bash
-alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+ alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
 <
 
 `fish`:
 >fish
-alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+ alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
 <
 
 This will allow you to simply run `nvimup` from anywhere in your terminal.
@@ -293,12 +308,12 @@ You can also create a desktop shortcut for this command like so:
 
 `nvimup.desktop`:
 >desktop
-[Desktop Entry]
-Name=Neovim Updater
-Exec=env NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
-Terminal=true
-Type=Application
-Icon=nvim
+ [Desktop Entry]
+ Name=Neovim Updater
+ Exec=env NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
+ Terminal=true
+ Type=Application
+ Icon=nvim
 <
 
 Place this file in your `~/.local/share/applications` directory.
@@ -312,12 +327,12 @@ you can modify the desktop file like so:
 
 `kitty-nvimup.desktop`:
 >desktop
-[Desktop Entry]
-Name=Neovim Updater (kitty)
-Exec=env NVIMUPDATER_HEADLESS=1 kitty nvim "+UpdateNeovim"
-Terminal=false
-Type=Application
-Icon=nvim
+ [Desktop Entry]
+ Name=Neovim Updater (kitty)
+ Exec=env NVIMUPDATER_HEADLESS=1 kitty nvim "+UpdateNeovim"
+ Terminal=false
+ Type=Application
+ Icon=nvim
 <
 This example uses the `kitty` terminal emulator.
 You can substitute `kitty` with any terminal emulator of your choice.

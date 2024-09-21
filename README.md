@@ -30,6 +30,8 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
       source_dir = "~/.local/src/neovim",  -- Custom target directory
       build_type = "RelWithDebInfo",       -- Set the desired build type
       branch = "master",                   -- Track nightly branch
+      check_for_updates = true,            -- Enable automatic update checks
+      default_keymaps = false,             -- Disable default keymaps
     })
   end,
   keys = { -- Custom keymappings
@@ -75,7 +77,9 @@ Minimal example with defaults:
 - Provides default keybindings for quick actions or
   lets you define your own custom keymaps.
 - Integrates with **lualine** and statusline plugins via a
-  dedicated buffer **filetype** for customization.
+  dedicated buffer **filetype** for customization and
+  a status component.
+- Integrates with `DiffView` and `Telescope` plugins
 
 ---
 
@@ -89,7 +93,10 @@ The `setup` function accepts an optional table to configure the plugin’s behav
 - **`build_type`**: The build type to use, e.g.,
   `Release`, `Debug`, or `RelWithDebInfo`. Default is `RelWithDebInfo`.
 - **`branch`**: The branch to track when cloning Neovim. Default is `master`.
-- **`keys`**: (table|nil) Define custom keymaps. When `nil`, sets default keymaps.
+- **`verbose`**: (boolean) Enable verbose output. Default is `false`.
+- **`check_for_updates`**: (boolean) Enable automatic update checks. Default is `false`.
+- **`update_interval`**: (number) Update interval in seconds. Default is `6 hours`.
+- **`default_keymaps`**: (boolean) Enable default keymaps. Default is `true`.
 
 ### Example Setup
 
@@ -98,6 +105,10 @@ require("nvim_updater").setup({
   source_dir = "~/projects/neovim",  -- Custom source directory
   build_type = "Release",            -- Use Release mode for building
   branch = "master",                 -- Default to the 'master' branch
+  verbose = false,                   -- Disable verbose output
+  check_for_updates = false,         -- Disable automatic update checks
+  update_interval = (60 * 60) * 6,   -- 6 hours default update interval
+  default_keymaps = true,            -- Enable default keymaps
 })
 ```
 
@@ -111,6 +122,8 @@ the plugin provides the following default keymaps:
 - **`<Leader>uU`**: Update Neovim using the default configuration.
 - **`<Leader>uD`**: Update Neovim using a `Debug` build.
 - **`<Leader>uR`**: Update Neovim using a `Release` build type.
+- **`<Leader>uC`**: Remove Neovim source directory.
+- **`<Leader>un`**: Show new updates available
 
 You can override these keybindings by providing a table of
 custom **key mappings** in the plugin’s setup
@@ -201,12 +214,14 @@ See [Configuration](⚙️Configuration) for setup options.
 
 ---
 
-## 📂 Filetype Integration
+## 📂 Integrations
+
+There are several features that allow the plugin to better integrate with other plugins.
+
+### Filetype: `neovim_updater_term`
 
 The plugin assigns a custom **filetype** to the terminal buffer
 used to run shell commands for updating Neovim.
-
-### Filetype: `neovim_updater_term`
 
 You can easily integrate with statusline plugins like **lualine** by referencing
 this **filetype** and applying custom conditions.
@@ -256,6 +271,89 @@ when using the updater and instead display a customized
 
 The condition can also be applied to any other components you
 wish to hide when using the updater.
+
+### 🪄 Statusline Integration
+
+The plugin exposes a function `nvim_updater.get_statusline()`
+
+This function returns a table of values that can be used to
+populate your statusline component.
+
+The table is **not** updated when the function is called.
+This prevents blocking or caching from negatively impacting your status component.
+
+Instead, set the `check_for_updates` option to `true` and configure a
+`update_interval` in the plugin setup options. The plugin will then
+periodically check for updates and update the statusline component
+automatically at that interval.
+
+Alternatively, set `check_for_updates` to `false` and manually
+call `nvim_updater.utils.get_commit_count()` when you'd like to
+refresh the updates.
+
+Here is an example adding a component to the lualine statusline:
+
+```lua
+require("lualine").setup {
+  sections = {
+    lualine_x = {
+      { -- Neovim Updater Status
+        function()
+          return require("nvim_updater").get_statusline().icon_text
+        end,
+        color = function()
+          return require("nvim_updater").get_statusline().color
+        end,
+        on_click = function()
+          require("nvim_updater").show_new_commits(true)
+        end,
+      },
+    },
+  },
+}
+```
+
+This will produce statusline components like this:
+
+![lualine_up2date](./.img/lualine_up2date.png)
+
+![lualine_updates](./.img/lualine_updates.png)
+
+Clicking on the component will open the changelog in a floating terminal.
+
+The `get_statusline()` function provides the following values:
+
+- count: The number of new commits
+- text: The text of the status
+- icon: An icon representing the update status
+- icon_text: The icon and text of the status
+- icon_count: The icon and count of the status
+- color: A highlight group representing the update status
+
+### Diff Integrations
+
+The plugin exposes a couple additional functions that provide better
+integration with other plugins.
+
+#### DiffView Integration
+
+The plugin exposes a function `nvim_updater.show_new_commits_in_diffview()`
+
+This function opens the changelog in
+the [DiffView](https://github.com/sindrets/diffview.nvim) plugin.
+
+If the plugin is not installed/available, the function will produce an error
+notification and then fallback to opening the changelog in a floating terminal.
+
+#### Telescope Integration
+
+The plugin exposes a function `nvim_updater.show_new_commits_in_telescope()`
+
+This function opens the changelog in
+the [Telescope](https://github.com/nvim-telescope/telescope.nvim) plugin.
+
+If the plugin is not installed/available, the function will produce an error
+notification and then fallback to opening the changelog in a floating terminal.
 
 ---
 
