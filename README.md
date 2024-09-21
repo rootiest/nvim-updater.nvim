@@ -194,10 +194,10 @@ The following functions are available in the `nvim_updater` namespace:
 #### Update Neovim from source
 
 ```lua
-require("nvim_updater").update_neovim(options)
+require("nvim_updater").update_neovim( [options] )
 ```
 
-Available options:
+Available `[options]`:
 
 - **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
 - **`build_type`**: The build type to use, e.g.,
@@ -207,25 +207,27 @@ Available options:
 #### Remove Neovim source
 
 ```lua
-require("nvim_updater").remove_source_dir(options)
+require("nvim_updater").remove_source_dir( [options] )
 ```
 
-Available options:
+Available `[options]`:
 
-- **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+- **`source_dir`**: Path to where the Neovim source is cloned.
+  Default is `~/.local/src/neovim`.
 
 #### Show new commits
 
 ```lua
- require("nvim_updater.utils").show_new_commits(options)
+ require("nvim_updater.utils").show_new_commits( [options] )
 ```
 
 This function opens a floating terminal with the new commits/changes on
 the remote repository vs the local src directory.
 
-Available options:
+Available `[options]`:
 
 - `isupdate`: Whether to prompt for updating after showing the changes.
+  Default is `false`
 
 #### Show new commits in DiffView
 
@@ -248,13 +250,13 @@ with the new commits/changes on the remote repository vs the local src directory
 #### Open floating terminal
 
 ```lua
-require("nvim_updater.utils").open_floating_terminal(options)
+require("nvim_updater.utils").open_floating_terminal( [options] )
 ```
 
 This is a helper function for opening a floating terminal that is used by the
 updater to display the terminal output.
 
-Available options:
+Available `[options]`:
 
 - **`cmd`**: Command to run in the terminal.
 - **`filetype`**: Filetype to assign to the terminal buffer.
@@ -262,10 +264,10 @@ Available options:
 #### Setup
 
 ```lua
-require("nvim_updater").setup(options)
+require("nvim_updater").setup( [options] )
 ```
 
-See [Configuration](⚙️Configuration) for setup options.
+See [Configuration](⚙️Configuration) for setup `[options]`.
 
 ---
 
