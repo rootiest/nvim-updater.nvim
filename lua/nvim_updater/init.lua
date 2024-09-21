@@ -137,12 +137,16 @@ function P.update_neovim(opts)
 	local build_command = "cd " .. source_dir .. " && make CMAKE_BUILD_TYPE=" .. build_type .. " && sudo make install"
 
 	-- Use the open_floating_terminal from the 'utils' module
-	utils.open_floating_terminal(git_commands .. " && " .. build_command, "neovim_updater_term")
+	utils.open_floating_terminal(git_commands .. " && " .. build_command, "neovim_updater_term", false, true)
+
+	-- Update the status count
+	P.last_status.count = "0"
 end
 
 --- Remove the Neovim source directory or a custom one.
 ---@function P.remove_source_dir
 ---@param opts table|nil Optional table for 'source_dir'
+---@return boolean success True if the directory was successfully removed, false otherwise
 function P.remove_source_dir(opts)
 	opts = opts or {}
 	local source_dir = opts.source_dir ~= "" and opts.source_dir or P.default_config.source_dir
@@ -152,12 +156,45 @@ function P.remove_source_dir(opts)
 		local success = vim.fn.delete(source_dir, "rf")
 		if success == 0 then
 			utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO)
+			return true
 		else
 			utils.notify("Error removing Neovim source directory: " .. source_dir, vim.log.levels.ERROR)
 		end
 	else
 		utils.notify("Source directory does not exist: " .. source_dir, vim.log.levels.WARN)
 	end
+
+	return false
+end
+
+--- Generate the Neovim source directory.
+---@function P.generate_source_dir
+---@param opts table|nil Optional table for 'source_dir'
+---@return string source_dir The source directory
+function P.generate_source_dir(opts)
+	opts = opts or {}
+	-- Define the source
+	local source_dir = opts.source_dir ~= "" and opts.source_dir or P.default_config.source_dir
+	local repo = "https://github.com/neovim/neovim.git"
+	local branch = opts.branch ~= "" and opts.branch or P.default_config.branch
+
+	-- Build the command to fetch the latest changes from the remote repository
+	local fetch_command = ("cd ~ && git clone %s %s"):format(repo, source_dir)
+
+	-- Checkout the branch
+	local checkout_command = "cd " .. source_dir .. " && git checkout " .. branch
+
+	-- Combine commands
+	local complete_command = fetch_command .. " && " .. checkout_command
+
+	-- Open a terminal window
+	utils.open_floating_terminal(complete_command, "neovim_updater_term", false, false)
+
+	-- Set the update count to "0"
+	P.last_status.count = "0"
+
+	-- Return the source directory
+	return source_dir
 end
 
 --- Function to return a statusline component

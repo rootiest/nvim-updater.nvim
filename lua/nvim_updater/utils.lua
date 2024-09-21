@@ -170,9 +170,10 @@ end
 --- This is useful for running long shell commands like building Neovim.
 ---@param command string Shell command to be executed inside the terminal
 ---@param filetype string Custom filetype for terminal buffer (for integration if needed)
----@param isupdate? boolean Whether the terminal is for updating Neovim
+---@param ispreupdate? boolean Whether the terminal is for changelog before updating Neovim
+---@param autoclose? boolean Whether the terminal should be automatically closed
 ---@function open_floating_terminal
-function U.open_floating_terminal(command, filetype, isupdate)
+function U.open_floating_terminal(command, filetype, ispreupdate, autoclose)
 	-- Create a new buffer for the terminal, set it as non-listed and scratch
 	local buf = vim.api.nvim_create_buf(false, true)
 	if not buf or buf == 0 then
@@ -221,7 +222,7 @@ function U.open_floating_terminal(command, filetype, isupdate)
 			vim.cmd("qa")
 		end
 		-- If isupdate is true, execute NVUpdateNeovim
-		if isupdate then
+		if ispreupdate then
 			U.ConfirmPrompt("Perform Neovim update?", function()
 				require("nvim_updater").update_neovim()
 			end)
@@ -232,6 +233,11 @@ function U.open_floating_terminal(command, filetype, isupdate)
 	vim.fn.termopen(command, {
 		on_exit = function(_, exit_code)
 			if exit_code == 0 then
+				if autoclose then -- If autoclose is true, close the terminal window
+					closing()
+					return
+				end
+
 				-- Wait for a keypress before closing the terminal window
 				vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
 					noremap = true,
