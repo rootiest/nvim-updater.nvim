@@ -14,7 +14,7 @@ P.default_config = {
 	check_for_updates = false, -- Checks for new updates automatically
 	update_interval = (60 * 60 * 6), -- Update interval in seconds (6 hours)
 	verbose = false, -- Default verbose mode
-	default_keymaps = true, -- Use default keymaps
+	default_keymaps = false, -- Use default keymaps
 }
 
 P.last_status = {
@@ -25,21 +25,25 @@ P.last_status = {
 ---@function setup_plug_keymaps
 local function setup_plug_keymaps()
 	-- Create <Plug> mappings for update and remove functionalities
-	vim.keymap.set("n", "<Plug>(UpdateNeovim)", function()
+	vim.keymap.set("n", "<Plug>(NVUpdateNeovim)", function()
 		P.update_neovim()
 	end, { desc = "Update Neovim via <Plug>", noremap = false, silent = true })
 
-	vim.keymap.set("n", "<Plug>(UpdateNeovimDebug)", function()
+	vim.keymap.set("n", "<Plug>(NVUpdateNeovimDebug)", function()
 		P.update_neovim({ build_type = "Debug" })
 	end, { desc = "Update Neovim with Debug build via <Plug>", noremap = false, silent = true })
 
-	vim.keymap.set("n", "<Plug>(UpdateNeovimRelease)", function()
+	vim.keymap.set("n", "<Plug>(NVUpdateNeovimRelease)", function()
 		P.update_neovim({ build_type = "Release" })
 	end, { desc = "Update Neovim with Release build via <Plug>", noremap = false, silent = true })
 
-	vim.keymap.set("n", "<Plug>(RemoveNeovimSource)", function()
+	vim.keymap.set("n", "<Plug>(NVUpdateRemoveSource)", function()
 		P.remove_source_dir()
 	end, { desc = "Remove Neovim source directory via <Plug>", noremap = false, silent = true })
+
+	vim.keymap.set("n", "<Plug(NVUpdateCloneSource)", function()
+		P.generate_source_dir()
+	end, { desc = "Generate Neovim source directory via <Plug>", noremap = false, silent = true })
 
 	vim.keymap.set("n", "<Plug>(NVUpdateShowNewCommits)", function()
 		P.show_new_commits()
@@ -62,25 +66,25 @@ local function setup_user_friendly_keymaps()
 		vim.keymap.set(
 			"n",
 			"<Leader>uU",
-			"<Plug>(UpdateNeovim)",
+			"<Plug>(NVUpdateNeovim)",
 			{ desc = "Update Neovim", noremap = true, silent = true }
 		)
 		vim.keymap.set(
 			"n",
 			"<Leader>uD",
-			"<Plug>(UpdateNeovimDebug)",
+			"<Plug>(NVUpdateNeovimDebug)",
 			{ desc = "Update Neovim with Debug build", noremap = true, silent = true }
 		)
 		vim.keymap.set(
 			"n",
 			"<Leader>uR",
-			"<Plug>(UpdateNeovimRelease)",
+			"<Plug>(NVUpdateNeovimRelease)",
 			{ desc = "Update Neovim with Release build", noremap = true, silent = true }
 		)
 		vim.keymap.set(
 			"n",
 			"<Leader>uC",
-			"<Plug>(RemoveNeovimSource)",
+			"<Plug>(NVUpdateRemoveSource)",
 			{ desc = "Remove Neovim source directory", noremap = true, silent = true }
 		)
 
@@ -445,6 +449,18 @@ function P.setup_usercmds()
 		P.update_neovim({ branch = branch, build_type = build_type, source_dir = source_dir })
 	end, {
 		desc = "Update Neovim with optional branch, build_type, and source_dir",
+		nargs = "*", -- Accept multiple (optional) arguments
+	})
+
+	--- Define NVUpdateCloneSource command to accept source_dir and branch as optional arguments
+	vim.api.nvim_create_user_command("NVUpdateCloneSource", function(opts)
+		local args = vim.split(opts.args, " ")
+		local source_dir = (args[1] == "" and P.default_config.source_dir or args[1])
+		local branch = (args[2] == "" and P.default_config.branch or args[2])
+
+		P.generate_source_dir({ source_dir = source_dir, branch = branch })
+	end, {
+		desc = "Clone Neovim source directory with optional branch",
 		nargs = "*", -- Accept multiple (optional) arguments
 	})
 
