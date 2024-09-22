@@ -29,6 +29,9 @@ The above video shows an example of the update workflow with the Neovim Updater 
 
 ### 📌 Optional Dependencies
 
+> [!TIP]
+> The plugin can integrate other plugins for displaying new commits.
+
 These plugins are not required but can be used to extend functionality.
 
 - [diffview.nvim](https://github.com/sindrets/diffview.nvim)
@@ -255,8 +258,9 @@ require("nvim_updater").setup({
 
 ## ⌨️ Default Keybindings
 
-If you do not specify your own custom keymaps,
-the plugin provides the following default keymaps:
+> [!NOTE]
+> If you do not wish to specify your own custom keymaps,
+> the plugin provides default keymaps that you can use.
 
 - **`<Leader>uU`**: Update Neovim using the default configuration.
 - **`<Leader>uD`**: Update Neovim using a `Debug` build.
@@ -329,6 +333,11 @@ after you’ve built and installed Neovim.
 The plugin exposes several Lua functions.
 
 The following functions are available in the `nvim_updater` namespace:
+
+> [!IMPORTANT]
+> The defaults shown below are for the default configuration.
+> If options aren't provided to the function, the values from
+> the plugin configuration will be used.
 
 #### Update Neovim from source
 

@@ -221,6 +221,11 @@ The plugin exposes several Lua functions.
 
 The following functions are available in the `nvim_updater` namespace:
 
+*IMPORTANT*:
+  The defaults shown below are for the default configuration.
+  If options aren't provided to the function, the values from
+  the plugin configuration will be used.a
+
 --- Update Neovim from source ---
 >lua
  require("nvim_updater").update_neovim( [options] )
@@ -445,8 +450,9 @@ The `NVIMUPDATER_HEADLESS` environment variable can be set
 to enable headless mode. In this mode, Neovim will be exited
 immediately after the update completes.
 
-*WARNING*: Lazy-loading the plugin may prevent headless
-           operation from functioning properly.
+*WARNING*:
+  Lazy-loading the plugin may prevent headless operation
+  from functioning properly.
 
 If you receive an error with external calls:
 >vim
