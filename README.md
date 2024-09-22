@@ -23,14 +23,12 @@ The above video shows an example of the update workflow with the Neovim Updater 
 - [Build prerequisites](https://github.com/neovim/neovim/blob/master/BUILD.md#build-prerequisites)
   for your platform
 
+> [!IMPORTANT]
 > It is recommended to uninstall any distro-provided neovim packages after
 > installing from source (with this plugin or manually) to prevent those
 > distro-packaged updates from overwriting the locally-built neovim binary.
 
 ### 📌 Optional Dependencies
-
-> [!TIP]
-> The plugin can integrate other plugins for displaying new commits.
 
 These plugins are not required but can be used to extend functionality.
 
@@ -167,7 +165,10 @@ EOF
 - Integrates with **lualine** and statusline plugins via a
   dedicated buffer **filetype** for customization and
   a status component.
-- Integrates with `DiffView` and `Telescope` plugins
+
+> [!TIP]
+> The plugin can integrate with `DiffView` and `Telescope` plugins
+> to display new commits in the Neovim source.
 
 ---
 
@@ -334,8 +335,8 @@ The plugin exposes several Lua functions.
 
 The following functions are available in the `nvim_updater` namespace:
 
-> [!IMPORTANT]
-> The defaults shown below are for the default configuration.
+> [!NOTE]
+> The defaults shown below are for the default configuration.  
 > If options aren't provided to the function, the values from
 > the plugin configuration will be used.
 

@@ -41,7 +41,7 @@ Prerequisites                                        *nvim-updater-prereqs*
 - Build prerequisites for your platform:
   https://github.com/neovim/neovim/blob/master/BUILD.md#build-prerequisites
 
-                           --- NOTE ---
+                         --- IMPORTANT ---
 It is recommended to uninstall any distro-provided neovim packages after
 installing from source (with this plugin or manually) to prevent those
 distro-packaged updates from overwriting the locally-built neovim binary.
