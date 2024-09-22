@@ -436,6 +436,15 @@ The `NVIMUPDATER_HEADLESS` environment variable can be set
 to enable headless mode. In this mode, Neovim will be exited
 immediately after the update completes.
 
+*WARNING*: Lazy-loading the plugin may prevent headless
+           operation from functioning properly.
+
+If you receive an error with external calls:
+>vim
+ E492: Not an editor command: NVUpdateNeovim
+<
+ This generally indicates the plugin was not loaded at startup.
+
 --- Command Line ---
 
 After installing the plugin, you can run the following command:
