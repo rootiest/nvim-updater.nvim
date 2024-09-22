@@ -1,5 +1,8 @@
 # Neovim Updater Plugin
 
+![Lua](https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua)
+[![nvim-updater.nvim](https://dotfyle.com/plugins/rootiest/nvim-updater.nvim/shield?style=for-the-badge)](https://dotfyle.com/plugins/rootiest/nvim-updater.nvim)
+
 This plugin allows you to easily update Neovim from source,
 with fully customizable options to define where the source is cloned,
 which branch is tracked, and the desired build type.
