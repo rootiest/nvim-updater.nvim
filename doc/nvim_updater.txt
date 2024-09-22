@@ -35,7 +35,7 @@ Prerequisites                                        *nvim-updater-prereqs*
 
 - A Linux system (macOS and Windows are not supported by this plugin)
 
-- Neovim 0.10+ (earlier versions may work, but could encounter issues)
+- Neovim 0.9+ (earlier versions may work, but could encounter issues)
   https://neovim.io/
 
 - Build prerequisites for your platform:
@@ -600,14 +600,13 @@ Compatibility                                  *nvim-updater-compatibility*
 
 --- Platform ---
 This plugin has been tested and configured primarily for Linux.
-  It may also work on macOS or other platforms, but assumes Linux-based 
+  It may also work on macOS or other platforms, but assumes Linux-based
   functionality with hardcoded calls like `sudo make install`.
 
 --- Neovim Version ---
-The plugin requires **Neovim 0.10+** due to its reliance 
-  on newer APIs (such as `nvim_set_option_value` which replaces deprecated 
-  API calls). Ensure you're running a compatible version for optimal 
-  functionality.
+The plugin requires Neovim 0.9+
+  Ensure you're running a compatible version
+  for optimal functionality.
 
 ==============================================================================
 Contributing                                   *nvim-updater-contributions*

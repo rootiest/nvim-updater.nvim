@@ -18,7 +18,7 @@ The above video shows an example of the update workflow with the Neovim Updater 
 ## 🔧 Prerequisites
 
 - A Linux system (macOS and Windows are not supported by this plugin)
-- [Neovim 0.10+](https://neovim.io/)
+- [Neovim 0.9+](https://neovim.io/)
   (earlier versions may work, but could encounter issues)
 - [Build prerequisites](https://github.com/neovim/neovim/blob/master/BUILD.md#build-prerequisites)
   for your platform
@@ -688,7 +688,7 @@ You can substitute `kitty` with any terminal emulator of your choice.
 - **Platform:** The plugin is primarily developed for Linux environments.
   Although it may work on macOS or other platforms,
   `sudo make install` is hard-coded and assumes a Linux-based setup.
-- **Neovim Version:** This plugin requires **Neovim 0.10+** to operate correctly,
+- **Neovim Version:** This plugin requires **Neovim 0.9+** to operate correctly,
   as it depends on specific Lua API features.
 
 ---
