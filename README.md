@@ -60,7 +60,7 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
     },
     { -- Remove Neovim Source
       "<Leader>cRN",
-      ":RemoveNeovimSource<CR>",
+      ":NVUpdateRemoveSource<CR>",
       desc = "Remove Neovim Source Directory",
     },
   }
@@ -144,22 +144,22 @@ custom **key mappings** in the plugin’s setup
 
 ### Commands
 
-- **`:UpdateNeovim`**: Updates Neovim from the source, using the default
+- **`:NVUpdateNeovim`**: Updates Neovim from the source, using the default
   or custom options you’ve set (e.g., source directory, build type, and branch).
   If the source does not exist at the specified path,
   the repository is cloned and built.
 
   ```vim
-  :UpdateNeovim
+  :NVUpdateNeovim
   ```
 
 This command pulls the latest changes from the source
 and builds Neovim based on your configuration.
 
-- **`:RemoveNeovimSource`**: Removes the source directory.
+- **`:NVUpdateRemoveSource`**: Removes the source directory.
 
   ```vim
-  :RemoveNeovimSource
+  :NVUpdateRemoveSource
   ```
 
 This command is useful if you want to clean up your source directory
@@ -439,7 +439,7 @@ immediately after the update completes.
 After installing the plugin, you can run the following command:
 
 ```sh
-NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
+NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"
 ```
 
 This command will open Neovim directly to the updater.
@@ -452,13 +452,13 @@ You can also alias this command to a shortcut like `nvimup`:
 **bash/zsh**:
 
 ```bash
-alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"'
 ```
 
 **fish**:
 
 ```fish
-alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"'
 ```
 
 This will allow you to simply run `nvimup` from anywhere in your terminal.
@@ -472,7 +472,7 @@ You can also create a desktop shortcut for this command like so:
 ```desktop
 [Desktop Entry]
 Name=Neovim Updater
-Exec=env NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
+Exec=env NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"
 Terminal=true
 Type=Application
 Icon=nvim
@@ -493,7 +493,7 @@ you can modify the desktop file like so:
 ```desktop
 [Desktop Entry]
 Name=Neovim Updater (kitty)
-Exec=env NVIMUPDATER_HEADLESS=1 kitty nvim "+UpdateNeovim"
+Exec=env NVIMUPDATER_HEADLESS=1 kitty nvim "+NVUpdateNeovim"
 Terminal=false
 Type=Application
 Icon=nvim

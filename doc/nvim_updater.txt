@@ -65,7 +65,7 @@ Example setup using lazy.nvim:
     keys = { -- Custom keymappings
       {
         "<Leader>cuU",
-        ":UpdateNeovim<CR>",
+        ":NVUpdateNeovim<CR>",
         desc = "Custom Update Neovim",
       },
       {
@@ -77,7 +77,7 @@ Example setup using lazy.nvim:
       },
       { -- Remove Neovim Source
         "<Leader>cRN",
-        ":RemoveNeovimSource<CR>",
+        ":NVUpdateRemoveSource<CR>",
         desc = "Remove Neovim Source Directory",
       },
     },
@@ -96,23 +96,23 @@ Commands                                            *nvim-updater-commands*
 
 Available commands:
 
-|:UpdateNeovim|    - Updates Neovim from source using current configuration.
-                     If this is the first time using it, it will clone the
-                     repository, otherwise, it will pull the latest changes
-                     then build it using the defined build type.
+|:NVUpdateNeovim|    - Updates Neovim from source using current configuration.
+                       If this is the first time using it, it will clone the
+                       repository, otherwise, it will pull the latest changes
+                       then build it using the defined build type.
 
 Example usage:
 >vim
-  :UpdateNeovim
+  :NVUpdateNeovim
 <
 
-|:RemoveNeovimSource| - Removes the source directory.
-                        This allows you to clear out the source directory
-                        after updating Neovim.
+|:NVUpdateRemoveSource| - Removes the source directory.
+                          This allows you to clear out the source directory
+                          after updating Neovim.
 
 Example usage:
 >vim
- :RemoveNeovimSource
+ :NVUpdateRemoveSource
 <
 
 |:NVUpdateShowNewCommits| - Shows new updates available.
@@ -330,7 +330,7 @@ immediately after the update completes.
 
 After installing the plugin, you can run the following command:
 >sh
-NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
+ NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"
 <
 
 This command will open Neovim directly to the updater.
@@ -342,12 +342,12 @@ You can also alias this command to a shortcut like `nvimup`:
 
 `bash/zsh`:
 >bash
- alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+ alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"'
 <
 
 `fish`:
 >fish
- alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"'
+ alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"'
 <
 
 This will allow you to simply run `nvimup` from anywhere in your terminal.
@@ -360,7 +360,7 @@ You can also create a desktop shortcut for this command like so:
 >desktop
  [Desktop Entry]
  Name=Neovim Updater
- Exec=env NVIMUPDATER_HEADLESS=1 nvim "+UpdateNeovim"
+ Exec=env NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"
  Terminal=true
  Type=Application
  Icon=nvim
@@ -379,7 +379,7 @@ you can modify the desktop file like so:
 >desktop
  [Desktop Entry]
  Name=Neovim Updater (kitty)
- Exec=env NVIMUPDATER_HEADLESS=1 kitty nvim "+UpdateNeovim"
+ Exec=env NVIMUPDATER_HEADLESS=1 kitty nvim "+NVUpdateNeovim"
  Terminal=false
  Type=Application
  Icon=nvim
