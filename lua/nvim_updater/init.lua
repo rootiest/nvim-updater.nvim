@@ -266,11 +266,18 @@ end
 --- Check for new commits and create a notification if there are any.
 ---@function P.show_new_commits
 ---@param show_none? boolean Whether to show a notification if there are no new commits
-function P.notify_new_commits(show_none)
+---@param level? number The log level to use for the notification
+function P.notify_new_commits(show_none, level)
 	-- Set default value for show_none to true
 	if show_none == nil then
 		show_none = true
 	end
+
+	-- Set default value for level to INFO
+	if level == nil then
+		level = vim.log.levels.INFO
+	end
+
 	-- Define the path to the Neovim source directory
 	local source_dir = P.default_config.source_dir
 
@@ -306,10 +313,10 @@ function P.notify_new_commits(show_none)
 		if tonumber(commit_count) > 0 then
 			-- Adjust the notification message based on the number of commits found
 			local commit_word = tonumber(commit_count) == 1 and "commit" or "commits"
-			utils.notify(("%d new Neovim %s."):format(tonumber(commit_count), commit_word), vim.log.levels.INFO, true)
+			utils.notify(("%d new Neovim %s."):format(tonumber(commit_count), commit_word), level, true)
 		else
 			if show_none then
-				utils.notify("No new Neovim commits.", vim.log.levels.INFO, true)
+				utils.notify("No new Neovim commits.", level, true)
 			end
 		end
 	else

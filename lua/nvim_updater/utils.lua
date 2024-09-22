@@ -79,8 +79,10 @@ end
 function U.notify(message, level, force)
 	-- Get config
 	local default_config = require("nvim_updater").default_config
-	-- If config verbose = false then suppress info notifications
-	if level == vim.log.levels.INFO and not default_config.verbose then
+	-- Check if the config verbose option is false.
+	-- If so, suppress INFO and DEBUG notifications based on the log level.
+	if (level == vim.log.levels.INFO or level == vim.log.levels.DEBUG) and not default_config.verbose then
+		-- If the notification is not forced, return early.
 		if not force then
 			return
 		end
