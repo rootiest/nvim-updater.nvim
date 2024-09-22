@@ -244,8 +244,9 @@ Available `[options]`:
  require("nvim_updater").remove_source_dir( [options] )
 <
 Available `[options]`:
-- `source_dir`: Path to where the Neovim source is cloned.
-                Default is `~/.local/src/neovim`.
+- `source_dir`  ->  Path to where the Neovim source is cloned.
+                    Default is `~/.local/src/neovim`.
+
 --- Clone Neovim source ---
 >lua
  require("nvim_updater").generate_source_dir( [options] )
@@ -264,8 +265,8 @@ This function opens a floating terminal with the new commits/changes on
 the remote repository vs the local src directory.
 
 Available `[options]`:
-- `isupdate`: Whether to prompt for updating after showing the changes.
-              Default is `false`
+- `isupdate`  ->  Whether to prompt for updating after showing the changes.
+                  Default is `false`
 
 --- Show new commits in DiffView ---
 >lua
@@ -289,8 +290,8 @@ This is a helper function for opening a floating terminal that is used by the
 updater to display the terminal output.
 
 Available `[options]`:
-- `cmd`: Command to run in the terminal.
-- `filetype`: Filetype to assign to the terminal buffer.
+- `cmd`       ->  Command to run in the terminal.
+- `filetype`  ->  Filetype to assign to the terminal buffer.
 
 --- Setup ---
 >lua
