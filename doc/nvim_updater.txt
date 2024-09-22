@@ -304,21 +304,21 @@ Available configuration fields:
 
 
 - `source_dir`: (string) Path to where the Neovim source is cloned.
-                       Default is `~/.local/src/neovim`.
+                       Default is `vim.fn.expand("~/.local/src/neovim")`.
                        The source directory path can be any
                         valid path Neovim can write to.
 
 - `build_type`: (string) The build type to use.
-                       Default is `RelWithDebInfo`.
-                       Opts: `Release` - No debugging symbols.
-                           `Debug` - All debugging symbols.
-                           `RelWithDebInfo` - Only common debugging symbols.
+                       Default is `"RelWithDebInfo"`.
+                       Opts: `"Release"` - No debugging symbols.
+                           `"Debug"` - All debugging symbols.
+                           `"RelWithDebInfo"` - Only common debugging symbols.
 
 - `branch`: (string) The branch to track when cloning Neovim.
-                       Default: `master` (nightly)
+                       Default: `"master"` (nightly)
                        The branch can be used to track the Neovim version.
-                       Opts: `release-0.10` (Neovim 0.10)
-                           `release-0.9`  (Neovim 0.9)
+                       Opts: `"release-0.10"` (Neovim 0.10)
+                           `"release-0.9"`  (Neovim 0.9)
 
 - `verbose`: (boolean) Enable verbose output.
                        Default is `false`.
@@ -335,7 +335,7 @@ Available configuration fields:
                            `false` - Disable automatic update checks.
 
 - `update_interval`: (number) Update interval in seconds.
-                       Default is `6 hours`.
+                       Default is `(60 * 60 * 6)` (6 hours).
                        The update interval is the time between checks
                         for new commits in the neovim source repository.
                        Opts: `number` - Update interval in seconds.

@@ -160,7 +160,7 @@ EOF
 - Customizable **source path**, **build type**
   (`Debug`, `Release`, `RelWithDebInfo`), and **branch**.
 - Provides default keybindings for quick actions or
-  lets you define your own custom keymaps.
+  define your own custom keymaps.
 - Integrates with **lualine** and statusline plugins via a
   dedicated buffer **filetype** for customization and
   a status component.
@@ -174,28 +174,32 @@ The `setup` function accepts an optional table to configure the plugin’s behav
 
 ### Available Options
 
-- **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
+- **`source_dir`**: Path to where the Neovim source is cloned.  
+  Default is `vim.fn.expand("~/.local/src/neovim")`.
 
   The source directory path can be any valid path Neovim can write to.
 
-- **`build_type`**: The build type to use. Default is `RelWithDebInfo`.
+- **`build_type`**: The build type to use.  
+  Default is `"RelWithDebInfo"`.
 
   Possible values are:  
-   `Release` - No debugging symbols.  
-   `Debug` - All debugging symbols.  
-   `RelWithDebInfo` - Release with common debugging symbols.
+   `"Release"` - No debugging symbols.  
+   `"Debug"` - All debugging symbols.  
+   `"RelWithDebInfo"` - Release with common debugging symbols.
 
-- **`branch`**: The branch to track when cloning Neovim. Default is `master` (nightly).
+- **`branch`**: The branch to track when cloning Neovim.  
+  Default is `"master"` (nightly).
 
   The branch can be used to track the Neovim version.
 
   Possible values are:  
-   `master` - Neovim nightly  
-   `release-0.10` - Neovim 0.10  
-   `release-0.9` - Neovim 0.9  
+   `"master"` - Neovim nightly  
+   `"release-0.10"` - Neovim 0.10  
+   `"release-0.9"` - Neovim 0.9  
    etc..
 
-- **`verbose`**: (boolean) Enable verbose output. Default is `false`.
+- **`verbose`**: (boolean) Enable verbose output.  
+  Default is `false`.
 
   When set to `false`, `INFO` and `DEBUG` notifications
   from the plugin are suppressed.
@@ -204,7 +208,8 @@ The `setup` function accepts an optional table to configure the plugin’s behav
    `true` - Enable verbose output.  
    `false` - Disable verbose output.
 
-- **`check_for_updates`**: (boolean) Enable automatic update checks. Default is `false`.
+- **`check_for_updates`**: (boolean) Enable automatic update checks.  
+  Default is `false`.
 
   When set to `false`, the plugin will not check for updates automatically.
 
@@ -212,7 +217,8 @@ The `setup` function accepts an optional table to configure the plugin’s behav
    `true` - Enable automatic update checks.  
    `false` - Disable automatic update checks.
 
-- **`update_interval`**: (number) Update interval in seconds. Default is `6 hours`.
+- **`update_interval`**: (number) Update interval in seconds.  
+  Default is `(60 * 60 * 6)` (6 hours).
 
   The update interval is the time between checks for new commits in the
   neovim source repository.
@@ -220,7 +226,8 @@ The `setup` function accepts an optional table to configure the plugin’s behav
   Possible values are:  
    `number` - Update interval in seconds.
 
-- **`default_keymaps`**: (boolean) Enable default keymaps. Default is `false`.
+- **`default_keymaps`**: (boolean) Enable default keymaps.  
+  Default is `false`.
 
   When set to `true`, the plugin provides a set of default keymaps.
 
@@ -663,5 +670,5 @@ Be sure to include the following information when reporting bugs:
 
 ## 📜 License
 
-This repository is licensed under the [MIT License](LICENSE).
+This repository is licensed under the [MIT License](LICENSE).  
 You are free to use, modify, and distribute this project in your own work.
