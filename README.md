@@ -76,13 +76,80 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
 }
 ```
 
-Minimal example with defaults:
+Minimal example with defaults in [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
   {
     "rootiest/nvim-updater.nvim",
     opts = {},
   }
+```
+
+Example with [packer.nvim](https://github.com/wbthomason/packer.nvim):
+
+```lua
+use {
+  "rootiest/nvim-updater.nvim",
+  config = function()
+    require("nvim_updater").setup({
+      source_dir = "~/.local/src/neovim",  -- Custom target directory
+      build_type = "RelWithDebInfo",       -- Set the desired build type
+      branch = "master",                   -- Track nightly branch
+      check_for_updates = true,            -- Enable automatic update checks
+      default_keymaps = false,             -- Disable default keymaps
+    })
+  end,
+  keys = { -- Custom keymappings
+    { -- Custom Update Neovim
+      "<Leader>cuU",
+      function()
+        require('nvim_updater').update_neovim()
+      end,
+      desc = "Custom Update Neovim"
+    },
+    { -- Debug Build Neovim
+      "<Leader>cuD",
+      function()
+        require('nvim_updater').update_neovim({ build_type = 'Debug' })
+      end,
+      desc = "Debug Build Neovim"
+    },
+    { -- Remove Neovim Source
+      "<Leader>cRN",
+      ":NVUpdateRemoveSource<CR>",
+      desc = "Remove Neovim Source Directory",
+    },
+  }
+}
+```
+
+Example with [vim-plug](https://github.com/junegunn/vim-plug):
+
+```lua
+Plug "rootiest/nvim-updater.nvim"
+
+lua << EOF
+require("nvim_updater").setup({
+  source_dir = "~/.local/src/neovim",  -- Custom target directory
+  build_type = "RelWithDebInfo",       -- Set the desired build type
+  branch = "master",                   -- Track nightly branch
+  check_for_updates = true,            -- Enable automatic update checks
+  default_keymaps = false,             -- Disable default keymaps
+})
+
+-- Custom keybindings
+vim.api.nvim_set_keymap("n", "<Leader>cuU",
+  ":lua require('nvim_updater').update_neovim()<CR>",
+  { noremap = true, silent = true, desc = "Custom Update Neovim" })
+
+vim.api.nvim_set_keymap("n", "<Leader>cuD",
+  ":lua require('nvim_updater').update_neovim({ build_type = 'Debug' })<CR>",
+  { noremap = true, silent = true, desc = "Debug Build Neovim" })
+
+vim.api.nvim_set_keymap("n", "<Leader>cRN",
+  ":NVUpdateRemoveSource<CR>",
+  { noremap = true, silent = true, desc = "Remove Neovim Source Directory" })
+EOF
 ```
 
 ---
