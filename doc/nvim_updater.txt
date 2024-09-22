@@ -17,7 +17,7 @@ CONTENTS                                               *nvim-updater-contents*
 |nvim-updater-lua-funcs|        Lua Functions
 |nvim-updater-keymaps|          Keymaps
 |nvim-updater-config|           Configuration
-|nvim-updater-filetype|         filetype integration
+|nvim-updater-integrations|     Integrations
 |nvim-updater-external|         External Use
 |nvim-updater-compatibility|    Compatibility
 |nvim-updater-contributions|    Contributions
@@ -374,8 +374,9 @@ Default settings 󱞣
  })
 <
 ==============================================================================
-Filetype integration                                *nvim-updater-filetype*
+Integrations                                      *nvim-updater-integrations*
 
+-------------------------- Filetype Integration --------------------------
 The terminal buffer created for updating Neovim uses a custom filetype 
 called `neovim_updater_term`.
 
@@ -437,6 +438,78 @@ The plugin exposes the following sub-filetypes:
   - `neovim_updater_term.updating` -> Neovim is updating
   - `neovim_updater_term.changes`  -> Showing Neovim source changes
   - `neovim_updater_term.cloning`  -> Neovim source directory is cloning
+
+------------------------- Statusline Integration -------------------------
+
+The plugin exposes a function `nvim_updater.get_statusline()`
+
+This function returns a table of values that can be used to
+populate your statusline component.
+
+The table is NOT updated when the function is called.
+This prevents blocking or caching from negatively impacting
+your status component.
+
+Instead, set the `check_for_updates` option to `true` and configure a
+`update_interval` in the plugin setup options. The plugin will then
+periodically check for updates and update the statusline component
+automatically at that interval.
+
+Alternatively, set `check_for_updates` to `false` and manually
+call `nvim_updater.utils.get_commit_count()` when you'd like to
+refresh the updates.
+
+Here is an example adding a component to the lualine statusline:
+>lua
+ require("lualine").setup {
+   sections = {
+     lualine_x = {
+       { -- Neovim Updater Status
+         function()
+           return require("nvim_updater").get_statusline().icon_text
+         end,
+         color = function()
+           return require("nvim_updater").get_statusline().color
+         end,
+         on_click = function()
+           require("nvim_updater").show_new_commits(true)
+         end,
+       },
+     },
+   },
+ }
+<
+The `get_statusline()` function provides the following values:
+  - `count`      -> The number of new commits
+  - `text`       -> The text of the status
+  - `icon`       -> An icon representing the update status
+  - `icon_text`  -> The icon and text of the status
+  - `icon_count` -> The icon and count of the status
+  - `color`      -> A highlight group representing the update status
+
+--------------------------- Diff Integrations ----------------------------
+
+The plugin exposes a couple additional functions that provide better
+integration with other plugins.
+
+                       --- DiffView Integration ---
+
+The plugin exposes a function `nvim_updater.show_new_commits_in_diffview()`
+
+This function opens the changelog in the DiffView plugin.
+
+If the plugin is not installed/available, the function will produce an error
+notification and then fallback to opening the changelog in a floating terminal.
+
+                       --- Telescope Integration ---
+
+The plugin exposes a function `nvim_updater.show_new_commits_in_telescope()`
+
+This function opens the changelog in the Telescope plugin.
+
+If the plugin is not installed/available, the function will produce an error
+notification and then fallback to opening the changelog in a floating terminal.
+
 
 ==============================================================================
 External Use                                      *nvim-updater-external*
