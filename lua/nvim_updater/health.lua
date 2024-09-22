@@ -34,10 +34,11 @@ local function check()
 			utils.health_msg("ok", "Write access to source directory checked successfully")
 		else
 			utils.health_msg("warn", "No write access to source directory: " .. source_dir)
-			utils.health_msg("info", "Hint: Run ':RemoveNeovimSource' to remove and retry with correct permissions.")
+			utils.health_msg("info", "Hint: Run ':NVRemoveSource' to remove and retry with correct permissions.")
 		end
 	else
 		utils.health_msg("warn", "Source directory does not exist: " .. source_dir)
+		utils.health_msg("info", "Hint: Run ':NVCloneSource' to clone the Neovim source directory.")
 
 		-- Parent directory write permissions check
 		local parent_dir = fs.dirname(source_dir)
