@@ -141,7 +141,7 @@ function P.update_neovim(opts)
 	local build_command = "cd " .. source_dir .. " && make CMAKE_BUILD_TYPE=" .. build_type .. " && sudo make install"
 
 	-- Use the open_floating_terminal from the 'utils' module
-	utils.open_floating_terminal(git_commands .. " && " .. build_command, "neovim_updater_term", false, true)
+	utils.open_floating_terminal(git_commands .. " && " .. build_command, "neovim_updater_term.updating", false, true)
 
 	-- Update the status count
 	P.last_status.count = "0"
@@ -216,8 +216,11 @@ function P.generate_source_dir(opts)
 	-- Combine commands
 	local complete_command = fetch_command .. " && " .. checkout_command
 
+	-- Notify the user that the clone is starting
+	utils.notify("Cloning Neovim source...", vim.log.levels.INFO)
+
 	-- Open a terminal window
-	utils.open_floating_terminal(complete_command, "neovim_updater_term", false, false)
+	utils.open_floating_terminal(complete_command, "neovim_updater_term.cloning", false, false)
 
 	-- Set the update count to "0"
 	P.last_status.count = "0"
@@ -358,7 +361,7 @@ function P.show_new_commits(isupdate)
 			utils.notify("Opening Neovim changes in terminal", vim.log.levels.INFO)
 			-- Open the terminal in a new window
 			local term_command = ("cd %s && git log %s..origin/%s"):format(source_dir, current_branch, current_branch)
-			utils.open_floating_terminal(term_command, "neovim_updater_term", isupdate, false)
+			utils.open_floating_terminal(term_command, "neovim_updater_term.changes", isupdate, false)
 			-- Enter insert mode
 			vim.api.nvim_feedkeys("i", "n", true)
 		else

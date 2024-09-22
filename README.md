@@ -435,21 +435,26 @@ require("lualine").setup {
       { -- Hide filename when using the updater
         "filename",
         cond = function()
-          return vim.bo.filetype ~= "neovim_updater_term"
+          return not string.find(vim.bo.filetype, "neovim_updater_term")
         end,
       },
       { -- Neovim Updater
         function()
-          return "Neovim Updating.."
+          local ft = vim.bo.filetype
+          if ft == "neovim_updater_term.updating" then
+            return "Neovim Updating.."
+          elseif ft == "neovim_updater_term.cloning" then
+            return "Neovim Source Cloning.."
+          elseif ft == "neovim_updater_term.changes" then
+            return "Neovim Source Changelog"
+          end
         end,
         icon = "󰅢 ",
-        -- Use the lualine_a highlight for emphasis
         color = "lualine_a_terminal",
-        -- Use bubble separators
         separator = { left = "", right = "" },
-        -- Show only when using the updater
+        padding = { left = 0, right = 0 },
         cond = function()
-          return vim.bo.filetype == "neovim_updater_term"
+          return string.find(vim.bo.filetype, "neovim_updater_term") ~= nil
         end,
       },
   },
@@ -458,8 +463,8 @@ require("lualine").setup {
 ```
 
 This configuration hides the file name in lualine when
-the `neovim_updater_term` filetype is detected and
-shows the `Neovim Updating` component instead.
+the `neovim_updater_term` root filetype is detected and
+shows the `nvim-updater` component instead.
 
 In this way we can avoid a messy "filename" being displayed
 when using the updater and instead display a customized
@@ -467,6 +472,15 @@ when using the updater and instead display a customized
 
 The condition can also be applied to any other components you
 wish to hide when using the updater.
+
+We can also take advantage of the "sub-filetype" to determine
+the mode of the updater plugin.
+
+The plugin exposes the following sub-filetypes:
+
+- `neovim_updater_term.updating` - Neovim is updating
+- `neovim_updater_term.changes` - Showing Neovim source changes
+- `neovim_updater_term.cloning` - Neovim source directory is cloning
 
 ### 🪄 Statusline Integration
 
