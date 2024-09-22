@@ -302,38 +302,61 @@ Configuration                                         *nvim-updater-config*
 The plugin's setup function accepts an optional configuration table.
 Available configuration fields:
 
-- `source_dir`  (string) - Path where Neovim will be cloned or updated.
-                           Default: `~/.local/src/neovim`
 
-- `build_type`  (string) - Specify the CMake build type, e.g., `Release`,
-                           `Debug`, or `RelWithDebInfo`.
-                           Default: `RelWithDebInfo`
+- `source_dir`: (string) Path to where the Neovim source is cloned.
+                       Default is `~/.local/src/neovim`.
+                       The source directory path can be any
+                        valid path Neovim can write to.
 
-- `branch`  (string) - Git branch to track for updates.
-                       Default: `master`
+- `build_type`: (string) The build type to use.
+                       Default is `RelWithDebInfo`.
+                       Opts: `Release` - No debugging symbols.
+                           `Debug` - All debugging symbols.
+                           `RelWithDebInfo` - Only common debugging symbols.
 
-- `verbose`  (boolean) - Enable verbose output.
-                         Default: `false`
+- `branch`: (string) The branch to track when cloning Neovim.
+                       Default: `master` (nightly)
+                       The branch can be used to track the Neovim version.
+                       Opts: `release-0.10` (Neovim 0.10)
+                           `release-0.9`  (Neovim 0.9)
 
-- `check_for_updates`  (boolean) - Enable automatic update checks.
-                                   Default: `false`
+- `verbose`: (boolean) Enable verbose output.
+                       Default is `false`.
+                       When set to `false`, `INFO` and `DEBUG`
+                        notifications from the plugin are suppressed.
+                       Opts: `true` - Enable verbose output
+                           `false` - Disable verbose output.
 
-- `update_interval`  (number) - Update interval in seconds.
-                                Default: `6 hours`
+- `check_for_updates`: (boolean) Enable automatic update checks.
+                       Default is `false`.
+                       When set to `false`, the plugin will not
+                        check for updates automatically.
+                       Opts: `true` - Enable automatic update checks.
+                           `false` - Disable automatic update checks.
 
-- `default_keymaps`  (boolean) - Enable default keymaps.
-                                 Default: `true`
+- `update_interval`: (number) Update interval in seconds.
+                       Default is `6 hours`.
+                       The update interval is the time between checks
+                        for new commits in the neovim source repository.
+                       Opts: `number` - Update interval in seconds.
 
-Example setup with custom settings:
+- `default_keymaps`: (boolean) Enable default keymaps.
+                       Default is `false`.
+                       When set to `true`, the plugin provides
+                        a set of default keymaps.
+                       Opts: `true` - Enable default keymaps.
+                             `false` - Disable default keymaps.
+
+Default settings:
 >lua
  require("nvim_updater").setup({
-   source_dir = "~/projects/neovim",  -- Custom source directory
-   build_type = "Release",            -- Use Release mode for building
-   branch = "release-0.10",           -- Track release branch
-   verbose = false,                   -- Disable verbose output
-   check_for_updates = false,         -- Disable automatic update checks
-   update_interval = (60 * 60) * 6,   -- 6 hours default update interval
-   default_keymaps = true,            -- Enable default keymaps
+   source_dir = "~/.local/src/neovim",  -- Default source directory
+   build_type = "RelWithDebInfo",       -- Default build mode
+   branch = "master",                   -- Represents "nightly"
+   check_for_updates = false,           -- Disable automatic update checks
+   update_interval = (60 * 60) * 6,     -- 6 hours default update interval
+   verbose = false,                     -- Disable verbose output
+   default_keymaps = false,              -- Disable default keymaps
  })
 <
 ==============================================================================

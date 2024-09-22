@@ -175,25 +175,72 @@ The `setup` function accepts an optional table to configure the plugin’s behav
 ### Available Options
 
 - **`source_dir`**: Path to where the Neovim source is cloned. Default is `~/.local/src/neovim`.
-- **`build_type`**: The build type to use, e.g.,
-  `Release`, `Debug`, or `RelWithDebInfo`. Default is `RelWithDebInfo`.
-- **`branch`**: The branch to track when cloning Neovim. Default is `master`.
+
+  The source directory path can be any valid path Neovim can write to.
+
+- **`build_type`**: The build type to use. Default is `RelWithDebInfo`.
+
+  Possible values are:  
+   `Release` - No debugging symbols.  
+   `Debug` - All debugging symbols.  
+   `RelWithDebInfo` - Release with common debugging symbols.
+
+- **`branch`**: The branch to track when cloning Neovim. Default is `master` (nightly).
+
+  The branch can be used to track the Neovim version.
+
+  Possible values are:  
+   `master` - Neovim nightly  
+   `release-0.10` - Neovim 0.10  
+   `release-0.9` - Neovim 0.9  
+   etc..
+
 - **`verbose`**: (boolean) Enable verbose output. Default is `false`.
+
+  When set to `false`, `INFO` and `DEBUG` notifications
+  from the plugin are suppressed.
+
+  Possible values are:  
+   `true` - Enable verbose output.  
+   `false` - Disable verbose output.
+
 - **`check_for_updates`**: (boolean) Enable automatic update checks. Default is `false`.
+
+  When set to `false`, the plugin will not check for updates automatically.
+
+  Possible values are:  
+   `true` - Enable automatic update checks.  
+   `false` - Disable automatic update checks.
+
 - **`update_interval`**: (number) Update interval in seconds. Default is `6 hours`.
-- **`default_keymaps`**: (boolean) Enable default keymaps. Default is `true`.
+
+  The update interval is the time between checks for new commits in the
+  neovim source repository.
+
+  Possible values are:  
+   `number` - Update interval in seconds.
+
+- **`default_keymaps`**: (boolean) Enable default keymaps. Default is `false`.
+
+  When set to `true`, the plugin provides a set of default keymaps.
+
+  Possible values are:  
+   `true` - Enable default keymaps.  
+   `false` - Disable default keymaps.
 
 ### Example Setup
 
+Default configuration:
+
 ```lua
 require("nvim_updater").setup({
-  source_dir = "~/projects/neovim",  -- Custom source directory
-  build_type = "Release",            -- Use Release mode for building
-  branch = "master",                 -- Default to the 'master' branch
-  verbose = false,                   -- Disable verbose output
-  check_for_updates = false,         -- Disable automatic update checks
-  update_interval = (60 * 60) * 6,   -- 6 hours default update interval
-  default_keymaps = true,            -- Enable default keymaps
+  source_dir = "~/.local/src/neovim",  -- Default source directory
+  build_type = "RelWithDebInfo",       -- Default build mode
+  branch = "master",                   -- Represents "nightly"
+  check_for_updates = false,           -- Disable automatic update checks
+  update_interval = (60 * 60) * 6,     -- 6 hours default update interval
+  verbose = false,                     -- Disable verbose output
+  default_keymaps = false,              -- Disable default keymaps
 })
 ```
 
