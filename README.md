@@ -27,6 +27,15 @@ The above video shows an example of the update workflow with the Neovim Updater 
 > installing from source (with this plugin or manually) to prevent those
 > distro-packaged updates from overwriting the locally-built neovim binary.
 
+### 📌 Optional Dependencies
+
+These plugins are not required but can be used to extend functionality.
+
+- [diffview.nvim](https://github.com/sindrets/diffview.nvim)
+  This plugin can be used to show new commits in DiffView.
+- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+  This plugin can be used to show new commits in Telescope.
+
 ## 📦 Installation and Setup (with lazy.nvim)
 
 To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):

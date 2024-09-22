@@ -46,6 +46,16 @@ It is recommended to uninstall any distro-provided neovim packages after
 installing from source (with this plugin or manually) to prevent those
 distro-packaged updates from overwriting the locally-built neovim binary.
 
+
+                    --- Optional Dependencies ---
+
+These plugins are not required but can be used to extend functionality:
+
+- [diffview.nvim](https://github.com/sindrets/diffview.nvim)
+  This plugin can be used to show new commits in DiffView.
+- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+  This plugin can be used to show new commits in Telescope.
+
 ==============================================================================
 Installation                                    *nvim-updater-installation*
 
