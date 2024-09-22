@@ -59,7 +59,7 @@ These plugins are not required but can be used to extend functionality:
 ==============================================================================
 Installation                                    *nvim-updater-installation*
 
-Example setup using lazy.nvim:
+Example setup using lazy.nvim 󱞣
 >lua
   require("lazy").setup({
     "rootiest/nvim-updater.nvim",
@@ -94,7 +94,7 @@ Example setup using lazy.nvim:
   })
 <
 
-Minimal example with defaults:
+Minimal example with defaults 󱞣
 >lua
   {
     "rootiest/nvim-updater.nvim",
@@ -102,7 +102,7 @@ Minimal example with defaults:
   }
 <
 
-Example with packer.nvim:
+Example with packer.nvim 󱞣
 >lua
  use {
    "rootiest/nvim-updater.nvim",
@@ -139,7 +139,7 @@ Example with packer.nvim:
  }
 <
 
-Example with vim-plug:
+Example with vim-plug 󱞣
 >lua
  Plug "rootiest/nvim-updater.nvim"
 
@@ -226,13 +226,13 @@ The following functions are available in the `nvim_updater` namespace:
  require("nvim_updater").update_neovim( [options] )
 <
 Available `[options]`:
-- `source_dir`: Path to where the Neovim source is cloned.
-                Default is `~/.local/src/neovim`.
-- `build_type`: The build type to use.
-                Options are `Release`, `Debug`, or `RelWithDebInfo`.
-                Default is `RelWithDebInfo`.
-- `branch`: The branch to track when cloning Neovim.
-                Default is `master`.
+- `source_dir`  ->  Path to where the Neovim source is cloned.
+                    Default is `~/.local/src/neovim`.
+- `build_type`  ->  The build type to use.
+                    Options are `Release`, `Debug`, or `RelWithDebInfo`.
+                    Default is `RelWithDebInfo`.
+- `branch`      ->  The branch to track when cloning Neovim.
+                    Default is `master`.
 
 --- Remove Neovim source ---
 >lua
@@ -289,9 +289,9 @@ Keymaps                                              *nvim-updater-keymaps*
 
 Default key mappings:
 
-- `<Leader>uU`: Update Neovim (default build type `RelWithDebInfo`).
-- `<Leader>uD`: Update Neovim with `Debug` build type.
-- `<Leader>uR`: Update Neovim with `Release` build type.
+- `<Leader>uU` -> Update Neovim (default build type `RelWithDebInfo`).
+- `<Leader>uD` -> Update Neovim with `Debug` build type.
+- `<Leader>uR` -> Update Neovim with `Release` build type.
 
 Users may define custom key mappings via the setup function.
 If `keys` is set to `nil`, the default keymaps are enabled.
@@ -303,51 +303,51 @@ The plugin's setup function accepts an optional configuration table.
 Available configuration fields:
 
 
-- `source_dir`: (string) Path to where the Neovim source is cloned.
+- `source_dir`: (string) -> Path to where the Neovim source is cloned.
                        Default is `vim.fn.expand("~/.local/src/neovim")`.
                        The source directory path can be any
                         valid path Neovim can write to.
 
-- `build_type`: (string) The build type to use.
+- `build_type`: (string) -> The build type to use.
                        Default is `"RelWithDebInfo"`.
                        Opts: `"Release"` - No debugging symbols.
                            `"Debug"` - All debugging symbols.
                            `"RelWithDebInfo"` - Only common debugging symbols.
 
-- `branch`: (string) The branch to track when cloning Neovim.
+- `branch`: (string) -> The branch to track when cloning Neovim.
                        Default: `"master"` (nightly)
                        The branch can be used to track the Neovim version.
                        Opts: `"release-0.10"` (Neovim 0.10)
                            `"release-0.9"`  (Neovim 0.9)
 
-- `verbose`: (boolean) Enable verbose output.
+- `verbose`: (boolean) -> Enable verbose output.
                        Default is `false`.
                        When set to `false`, `INFO` and `DEBUG`
                         notifications from the plugin are suppressed.
                        Opts: `true` - Enable verbose output
                            `false` - Disable verbose output.
 
-- `check_for_updates`: (boolean) Enable automatic update checks.
+- `check_for_updates`: (boolean) -> Enable automatic update checks.
                        Default is `false`.
                        When set to `false`, the plugin will not
                         check for updates automatically.
                        Opts: `true` - Enable automatic update checks.
                            `false` - Disable automatic update checks.
 
-- `update_interval`: (number) Update interval in seconds.
+- `update_interval`: (number) -> Update interval in seconds.
                        Default is `(60 * 60 * 6)` (6 hours).
                        The update interval is the time between checks
                         for new commits in the neovim source repository.
                        Opts: `number` - Update interval in seconds.
 
-- `default_keymaps`: (boolean) Enable default keymaps.
+- `default_keymaps`: (boolean) -> Enable default keymaps.
                        Default is `false`.
                        When set to `true`, the plugin provides
                         a set of default keymaps.
                        Opts: `true` - Enable default keymaps.
                              `false` - Disable default keymaps.
 
-Default settings:
+Default settings 󱞣
 >lua
  require("nvim_updater").setup({
    source_dir = "~/.local/src/neovim",  -- Default source directory
@@ -369,7 +369,7 @@ This allows you to perform conditional customizations with your statusline
 (e.g., hiding or showing certain statusline components) or for plugins 
 dependent on filetypes.
 
-Example lualine configuration to hide filename when using the updater term:
+Example lualine configuration 󱞣
 >lua
  require("lualine").setup {
    sections = {
@@ -450,12 +450,12 @@ This command will open Neovim directly to the updater.
 
 You can also alias this command to a shortcut like `nvimup`:
 
-`bash/zsh`:
+`bash/zsh` 󱞣
 >bash
  alias nvimup='NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"'
 <
 
-`fish`:
+`fish` 󱞣
 >fish
  alias --save nvimup='NVIMUPDATER_HEADLESS=1 nvim "+NVUpdateNeovim"'
 <
@@ -466,7 +466,7 @@ This will allow you to simply run `nvimup` from anywhere in your terminal.
 
 You can also create a desktop shortcut for this command like so:
 
-`nvimup.desktop`:
+`nvimup.desktop` 󱞣
 >desktop
  [Desktop Entry]
  Name=Neovim Updater
@@ -485,7 +485,7 @@ updater in your default terminal emulator.
 To use a specific terminal emulator instead of the default,
 you can modify the desktop file like so:
 
-`kitty-nvimup.desktop`:
+`kitty-nvimup.desktop` 󱞣
 >desktop
  [Desktop Entry]
  Name=Neovim Updater (kitty)
