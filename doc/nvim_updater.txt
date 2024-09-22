@@ -241,6 +241,15 @@ Available `[options]`:
 Available `[options]`:
 - `source_dir`: Path to where the Neovim source is cloned.
                 Default is `~/.local/src/neovim`.
+--- Clone Neovim source ---
+>lua
+ require("nvim_updater").generate_source_dir( [options] )
+<
+Available `[options]`:
+- `source_dir`  ->  Path to where the Neovim source is to be cloned.
+                    Default is `~/.local/src/neovim`.
+- `branch`      ->  The branch to track when cloning Neovim.
+                    Default is `master`.
 
 --- Show new commits ---
 >lua
