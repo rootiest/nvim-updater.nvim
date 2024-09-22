@@ -156,19 +156,44 @@ function P.remove_source_dir(opts)
 	local source_dir = opts.source_dir ~= "" and opts.source_dir or P.default_config.source_dir
 
 	if utils.directory_exists(source_dir) then
-		-- Safely attempt to delete the directory recursively
-		local success = vim.fn.delete(source_dir, "rf")
+		-- Check if vim.fs.rm is available
+		if vim.fs.rm then
+			-- Use pcall to attempt to call the function
+			local success, err = pcall(vim.fs.rm, source_dir, { recursive = true, force = true })
+			if success then
+				utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO)
+				utils.notify("Source directory removed with vim.fs.rm", vim.log.levels.DEBUG)
+				return true
+			else
+				if not err then
+					err = "Unknown error"
+				end
+				utils.notify(
+					"Error removing Neovim source directory: " .. source_dir .. "\n" .. err,
+					vim.log.levels.ERROR
+				)
+				utils.notify("Source directory removal failed with vim.fs.rm", vim.log.levels.DEBUG)
+				return false
+			end
+		end
+		-- Fallback to vim.fn.delete if vim.fs.rm is not available
+		local success, err = vim.fn.delete(source_dir, "rf")
 		if success == 0 then
 			utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO)
+			utils.notify("Source directory removed with vim.fn.delete", vim.log.levels.DEBUG)
 			return true
 		else
-			utils.notify("Error removing Neovim source directory: " .. source_dir, vim.log.levels.ERROR)
+			if not err then
+				err = "Unknown error"
+			end
+			utils.notify("Error removing Neovim source directory: " .. source_dir .. "\n" .. err, vim.log.levels.ERROR)
+			utils.notify("Source directory removal failed with vim.fn.delete", vim.log.levels.DEBUG)
+			return false
 		end
 	else
 		utils.notify("Source directory does not exist: " .. source_dir, vim.log.levels.WARN)
+		return false
 	end
-
-	return false
 end
 
 --- Generate the Neovim source directory.
