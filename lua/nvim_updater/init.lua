@@ -519,7 +519,7 @@ function P.setup_usercmds()
 
 	--- Define NVUpdateShowNewDiffs command to show new commits in Diffview
 	vim.api.nvim_create_user_command("NVUpdateShowNewDiffs", function()
-		P.show_new_diffs()
+		P.show_new_commits_in_diffview()
 	end, {
 		desc = "Show new commits in Diffview",
 	})
