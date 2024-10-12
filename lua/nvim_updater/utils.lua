@@ -170,12 +170,35 @@ end
 
 --- Helper to display floating terminal in a centered, minimal Neovim window.
 --- This is useful for running long shell commands like building Neovim.
----@param command string Shell command to be executed inside the terminal
----@param filetype string Custom filetype for terminal buffer (for integration if needed)
----@param ispreupdate? boolean Whether the terminal is for changelog before updating Neovim
----@param autoclose? boolean Whether the terminal should be automatically closed
+--- You can pass arguments either as positional or as a table of options.
+---@param command_or_opts string|table Either a shell command (string) or a table with options
+---@param filetype? string Custom filetype for terminal buffer (optional if using table)
+---@param ispreupdate? boolean Whether the terminal is for changelog before updating Neovim (optional if using table)
+---@param autoclose? boolean Whether the terminal should be automatically closed (optional if using table)
 ---@function open_floating_terminal
-function U.open_floating_terminal(command, filetype, ispreupdate, autoclose)
+function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose)
+	local opts
+
+	-- Determine if the first argument is a table or positional arguments
+	if type(command_or_opts) == "table" then
+		-- Use table values directly
+		opts = command_or_opts
+	else
+		-- Otherwise treat it as positional arguments
+		opts = {
+			command = command_or_opts or "",
+			filetype = filetype or "floating.term", -- Default filetype
+			ispreupdate = ispreupdate or false,
+			autoclose = autoclose or false,
+		}
+	end
+
+	-- Extract options from the table
+	local command = opts.command or ""
+	filetype = opts.filetype or "FloatingTerm"
+	ispreupdate = opts.ispreupdate or false
+	autoclose = opts.autoclose or false
+
 	-- Create a new buffer for the terminal, set it as non-listed and scratch
 	local buf = vim.api.nvim_create_buf(false, true)
 	if not buf or buf == 0 then
@@ -296,11 +319,6 @@ function U.open_floating_terminal(command, filetype, ispreupdate, autoclose)
 			end
 		end,
 	})
-
-	-- Enter terminal's insert mode
-	vim.treesitter.stop(buf)
-	vim.api.nvim_set_current_win(win)
-	vim.cmd("startinsert!")
 end
 
 --- Helper function to return the number of pending commits
@@ -355,7 +373,11 @@ end
 ---@param interval number The interval to wait before checking for updates
 function U.update_timer(interval)
 	timer(function()
+		local default_config = require("nvim_updater").default_config
 		U.get_commit_count()
+		if default_config.notify_updates then
+			require("nvim_updater").notify_new_commits({ show_none = false, level = vim.log.levels.INFO })
+		end
 		return interval * 1000
 	end)
 end

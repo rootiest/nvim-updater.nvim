@@ -13,6 +13,7 @@ P.default_config = {
 	branch = "master", -- Default Neovim branch to track
 	check_for_updates = false, -- Checks for new updates automatically
 	update_interval = (60 * 60 * 6), -- Update interval in seconds (6 hours)
+	notify_updates = false, -- Enable update notification
 	verbose = false, -- Default verbose mode
 	default_keymaps = false, -- Use default keymaps
 }
@@ -402,9 +403,12 @@ function P.show_new_commits(isupdate, short)
 				current_branch,
 				current_branch
 			)
-			utils.open_floating_terminal(term_command, "neovim_updater_term.changes", isupdate, false)
-			-- Enter insert mode
-			vim.api.nvim_feedkeys("i", "n", true)
+			utils.open_floating_terminal({
+				command = term_command,
+				filetype = "neovim_updater_term.changes",
+				ispreupdate = isupdate,
+				autoclose = false,
+			})
 		else
 			utils.notify("No new Neovim commits.", vim.log.levels.INFO)
 			-- Update status count

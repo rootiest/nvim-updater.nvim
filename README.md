@@ -427,6 +427,24 @@ with the new commits/changes on the remote repository vs the local src directory
 This function opens [Telescope](https://github.com/nvim-telescope/telescope.nvim)
 with the new commits/changes on the remote repository vs the local src directory.
 
+#### Trigger a notification
+
+```lua
+require("nvim_updater").notify_new_commits( [options] )
+```
+
+This function triggers a notification with the new commits/changes on
+the remote repository vs the local src directory.
+
+Available `[options]`:
+
+- `show_none`: Whether to show a notification when there are no new commits.
+  Default is `false`
+
+- `level`: (optional) The level of notification to use.
+  Default is `INFO`.  
+  Possible values are: `INFO`, `WARN`, `ERROR`, `DEBUG`.
+
 #### Open floating terminal
 
 ```lua
