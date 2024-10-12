@@ -50,6 +50,7 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
       build_type = "RelWithDebInfo",       -- Set the desired build type
       branch = "master",                   -- Track nightly branch
       check_for_updates = true,            -- Enable automatic update checks
+      notify_updates = true,               -- Enables update notifications
       default_keymaps = false,             -- Disable default keymaps
     })
   end,
@@ -97,6 +98,7 @@ use {
       build_type = "RelWithDebInfo",       -- Set the desired build type
       branch = "master",                   -- Track nightly branch
       check_for_updates = true,            -- Enable automatic update checks
+      notify_updates = true,               -- Enables update notifications
       default_keymaps = false,             -- Disable default keymaps
     })
   end,
@@ -135,6 +137,7 @@ require("nvim_updater").setup({
   build_type = "RelWithDebInfo",       -- Set the desired build type
   branch = "master",                   -- Track nightly branch
   check_for_updates = true,            -- Enable automatic update checks
+  notify_updates = true,               -- Enables update notifications
   default_keymaps = false,             -- Disable default keymaps
 })
 
@@ -230,6 +233,13 @@ The `setup` function accepts an optional table to configure the plugin’s behav
   Possible values are:  
    `number` - Update interval in seconds.
 
+- **`notify_updates`**: (boolean) Produce update notifications  
+  Default is `false`
+
+  Possible values are:  
+  `true` - Produce update notifications at update_interval.
+  `false` - Do not produce update notifications.
+
 - **`default_keymaps`**: (boolean) Enable default keymaps.  
   Default is `false`.
 
@@ -250,6 +260,7 @@ require("nvim_updater").setup({
   branch = "master",                   -- Represents "nightly"
   check_for_updates = false,           -- Disable automatic update checks
   update_interval = (60 * 60) * 6,     -- 6 hours default update interval
+  notify_updates = false,              -- Disable update notifications
   verbose = false,                     -- Disable verbose output
   default_keymaps = false,              -- Disable default keymaps
 })
@@ -441,7 +452,7 @@ Available `[options]`:
 - `show_none`: Whether to show a notification when there are no new commits.
   Default is `false`
 
-- `level`: (optional) The level of notification to use.
+- `level`: The level of notification to use.
   Default is `INFO`.  
   Possible values are: `INFO`, `WARN`, `ERROR`, `DEBUG`.
 
@@ -458,6 +469,11 @@ Available `[options]`:
 
 - **`cmd`**: Command to run in the terminal.
 - **`filetype`**: Filetype to assign to the terminal buffer.
+  Default is `"nvim_updater_term"`.
+- **`ispreupdate`**: Whether the terminal will be followed by an update build.
+  Default is `false`.
+- **`autoclose`**: Whether the terminal buffer will be closed when the process ends.
+  Default is `false`.
 
 #### Setup
 

@@ -69,6 +69,7 @@ Example setup using lazy.nvim 󱞣
         build_type = "RelWithDebInfo",       -- Set the desired build type
         branch = "master",                   -- Track nightly branch
         check_for_updates = true,            -- Enable automatic update checks
+        notify_updates = true,               -- Enables update notifications
         default_keymaps = false,             -- Disable default keymaps
       })
     end,
@@ -112,6 +113,7 @@ Example with packer.nvim 󱞣
        build_type = "RelWithDebInfo",       -- Set the desired build type
        branch = "master",                   -- Track nightly branch
        check_for_updates = true,            -- Enable automatic update checks
+       notify_updates = true,               -- Enables update notifications
        default_keymaps = false,             -- Disable default keymaps
      })
    end,
@@ -149,6 +151,7 @@ Example with vim-plug 󱞣
    build_type = "RelWithDebInfo",       -- Set the desired build type
    branch = "master",                   -- Track nightly branch
    check_for_updates = true,            -- Enable automatic update checks
+   notify_updates = true,               -- Enables update notifications
    default_keymaps = false,             -- Disable default keymaps
  })
 
@@ -321,8 +324,13 @@ This is a helper function for opening a floating terminal that is used by the
 updater to display the terminal output.
 
 Available `[options]`:
-- `cmd`       ->  Command to run in the terminal.
-- `filetype`  ->  Filetype to assign to the terminal buffer.
+- `cmd`          ->  Command to run in the terminal.
+- `filetype`     ->  Filetype to assign to the terminal buffer.
+                     Default is `"nvim_updater_term"`.
+- `ispreupdate`  ->  Whether the terminal will be followed by an update build.
+                     Default is `false`.
+- `autoclose`    ->  Whether the terminal buffer will be closed when the process ends.
+                     Default is `false`.
 
 --- Setup ---
 >lua
@@ -386,6 +394,11 @@ Available configuration fields:
                         for new commits in the neovim source repository.
                        Opts: `number` - Update interval in seconds.
 
+- `notify_updates`: (boolean) -> Produce update notifications
+                       Default is `false`
+                       When set to `true`, the plugin will produce
+                        notifications for new commits.
+
 - `default_keymaps`: (boolean) -> Enable default keymaps.
                        Default is `false`.
                        When set to `true`, the plugin provides
@@ -401,8 +414,9 @@ Default settings 󱞣
    branch = "master",                   -- Represents "nightly"
    check_for_updates = false,           -- Disable automatic update checks
    update_interval = (60 * 60) * 6,     -- 6 hours default update interval
+   notify_updates = false,              -- Disable update notifications
    verbose = false,                     -- Disable verbose output
-   default_keymaps = false,              -- Disable default keymaps
+   default_keymaps = false,             -- Disable default keymaps
  })
 <
 ==============================================================================
