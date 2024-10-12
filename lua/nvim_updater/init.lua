@@ -266,11 +266,24 @@ function P.get_statusline()
 	return status
 end
 
+---@class NVNoticeOpts
+---@field show_none boolean|table Optional. If a boolean, determines whether to show a notification if there are no new commits.
+---@field level number Optional. The log level to use for the notification. Only used if `show_none` is a boolean.
+
 --- Check for new commits and create a notification if there are any.
----@function P.show_new_commits
----@param show_none? boolean Whether to show a notification if there are no new commits
----@param level? number The log level to use for the notification
+--- Can be called with either positional arguments or a table of options.
+--- @param show_none boolean|NVNoticeOpts Optional.
+---   If a boolean, determines whether to show a notification if there are no new commits.
+---   If a table, it can contain `show_none` and `level` options.
+--- @param level? number Optional.
+---   The log level to use for the notification. Only used if `show_none` is a boolean.
 function P.notify_new_commits(show_none, level)
+	-- If the first argument is a table, treat it as an options table.
+	if type(show_none) == "table" then
+		local opts = show_none
+		show_none = opts.show_none
+		level = opts.level
+	end
 	-- Set default value for show_none to true
 	if show_none == nil then
 		show_none = true
@@ -327,11 +340,29 @@ function P.notify_new_commits(show_none, level)
 	end
 end
 
+---@class NVCommitsOpts
+---@field isupdate boolean True if this is part of an update
+---@field short boolean True to only show short commit messages
+
 --- Show commits that exist in the remote branch but not in the local branch.
----@param isupdate? boolean True if this is part of an update
-function P.show_new_commits(isupdate)
+--- @param isupdate? boolean|NVCommitsOpts Optional. If a boolean, determines whether to update the commit list.
+---   If a table, it can contain `isupdate` and `short` options.
+--- @param short? boolean Optional. Whether to show a short commit list. Only used if `isupdate` is a boolean.
+function P.show_new_commits(isupdate, short)
+	-- If the first argument is a table, treat it as an options table.
+	if type(isupdate) == "table" then
+		local opts = isupdate
+		isupdate = opts.isupdate
+		short = opts.short
+	end
 	-- Define the path to the Neovim source directory
 	local source_dir = P.default_config.source_dir
+
+	-- Set short default to true
+	local shortmessage = "--decorate=short "
+	if short == nil then
+		short = true
+	end
 
 	-- Build the command to fetch the latest changes from the remote repository
 	local fetch_command = ("cd %s && git fetch"):format(source_dir)
@@ -351,6 +382,11 @@ function P.show_new_commits(isupdate)
 		current_branch
 	)
 
+	-- Set up shortmessage
+	if short then
+		shortmessage = "--decorate=short --pretty=oneline "
+	end
+
 	-- Execute the command to get the count of new commits
 	local commit_count = vim.fn.system(commit_count_cmd):gsub("%s+", "") -- Trim whitespace
 
@@ -360,7 +396,12 @@ function P.show_new_commits(isupdate)
 			-- Display the commit logs
 			utils.notify("Opening Neovim changes in terminal", vim.log.levels.INFO)
 			-- Open the terminal in a new window
-			local term_command = ("cd %s && git log %s..origin/%s"):format(source_dir, current_branch, current_branch)
+			local term_command = ("cd %s && git --no-pager log %s%s..origin/%s"):format(
+				source_dir,
+				shortmessage,
+				current_branch,
+				current_branch
+			)
 			utils.open_floating_terminal(term_command, "neovim_updater_term.changes", isupdate, false)
 			-- Enter insert mode
 			vim.api.nvim_feedkeys("i", "n", true)

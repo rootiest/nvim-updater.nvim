@@ -389,6 +389,25 @@ Available `[options]`:
 
 - `isupdate`: Whether to prompt for updating after showing the changes.
   Default is `false`
+- `short`: Whether to show short commit messages.
+  Default is `true`
+
+Options may be specified in the following manners:
+
+1. Specify parameters directly: (must follow the same order as shown above)
+
+   ```lua
+   require("nvim_updater.utils").show_new_commits(true, false)
+   ```
+
+2. Use a table: (may be specified in any order or combination)
+
+   ```lua
+   require("nvim_updater.utils").show_new_commits({
+     isupdate = true,
+     short = false
+   })
+   ```
 
 #### Show new commits in DiffView
 
