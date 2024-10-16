@@ -144,6 +144,9 @@ function P.update_neovim(opts)
 	-- Use the open_floating_terminal from the 'utils' module
 	utils.open_floating_terminal(git_commands .. " && " .. build_command, "neovim_updater_term.updating", false, true)
 
+	-- Go to insert mode
+	vim.cmd("startinsert")
+
 	-- Update the status count
 	P.last_status.count = "0"
 end
