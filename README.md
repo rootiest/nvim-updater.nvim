@@ -423,7 +423,7 @@ Options may be specified in the following manners:
 #### Show new commits in DiffView
 
 ```lua
- require("nvim_updater.utils").show_new_commits_in_diffview()
+ require("nvim_updater").show_new_commits_in_diffview()
 ```
 
 This function opens [DiffView](https://github.com/sindrets/diffview.nvim)
