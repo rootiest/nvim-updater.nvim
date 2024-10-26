@@ -7,11 +7,40 @@ local fs = vim.fs
 local utils = require("nvim_updater.utils")
 local check_write_permissions = utils.check_write_permissions
 
+local function get_nvim_version()
+	local version = vim.version()
+	local versions = {
+		major = version.major,
+		minor = version.minor,
+		patch = version.patch,
+		prerelease = version.prerelease,
+		build = version.build,
+		simple = string.format(
+			"%d.%d.%d-%s-%s",
+			version.major,
+			version.minor,
+			version.patch,
+			version.prerelease,
+			version.build
+		),
+	}
+	return versions
+end
+
 -- Neovim Updater Health Checks
 ---@function check
 local function check()
 	health.start("Neovim Updater Health Check")
 
+	-- Get neovim version info
+	local nvim_version = get_nvim_version()
+	if nvim_version.major > 0 or nvim_version.minor >= 10 then
+		utils.health_msg("ok", "Neovim version: v" .. nvim_version.simple)
+	elseif nvim_version.major == 0 and nvim_version.minor >= 9 then
+		utils.health_msg("warn", "Neovim version: v" .. nvim_version.simple .. " (Deprecated)")
+	else
+		utils.health_msg("error", "Neovim version: v" .. nvim_version.simple .. " (Unsupported)")
+	end
 	-- Load user configuration
 	local user_config = require("nvim_updater").default_config or {}
 	local source_dir = user_config.source_dir or "~/.local/src/neovim"

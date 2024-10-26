@@ -210,12 +210,12 @@ Example usage:
  :NVUpdateShowNewCommitsInDiffView
 <
 
-|:NVUpdateShowNewCommitsInTelescope| - Shows new updates available in
+|:NVUpdatePickNewCommits| - Shows new updates available in
                                        the Telescope plugin.
 
 Example usage:
 >vim
- :NVUpdateShowNewCommitsInTelescope
+ :NVUpdatePickNewCommits
 <
 ==============================================================================
 Lua Functions                                      *nvim-updater-lua-funcs*
@@ -296,7 +296,7 @@ the remote repository vs the local src directory.
 
 --- Show new commits in Telescope ---
 >lua
- require("nvim_updater.utils").show_new_commits_in_telescope()
+ require("nvim_updater").show_new_commits_in_telescope()
 <
 This function opens Telescope with the new commits/changes on
 the remote repository vs the local src directory.

@@ -573,4 +573,11 @@ function P.setup_usercmds()
 	})
 end
 
+-- Define NVUpdatePickNewCommits command to pick new commits in telescope
+vim.api.nvim_create_user_command("NVUpdatePickNewCommits", function()
+	P.show_new_commits_in_telescope()
+end, {
+	desc = "Pick new commits in telescope",
+})
+
 return P
