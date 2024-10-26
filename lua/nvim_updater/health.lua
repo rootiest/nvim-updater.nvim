@@ -16,7 +16,7 @@ local function get_nvim_version()
 		prerelease = version.prerelease,
 		build = version.build,
 		simple = string.format(
-			"%d.%d.%d (%s-%s)",
+			"%d.%d.%d-%s-%s",
 			version.major,
 			version.minor,
 			version.patch,
