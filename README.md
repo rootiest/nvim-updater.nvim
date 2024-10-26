@@ -44,6 +44,7 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
 ```lua
 {
   "rootiest/nvim-updater.nvim",
+  version = "*", -- Pin to GitHub releases
   config = function()
     require("nvim_updater").setup({
       source_dir = "~/.local/src/neovim",  -- Custom target directory
@@ -83,6 +84,7 @@ Minimal example with defaults in [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
   {
     "rootiest/nvim-updater.nvim",
+    version = "*", -- Pin to GitHub releases
     opts = {},
   }
 ```
@@ -92,6 +94,7 @@ Example with [packer.nvim](https://github.com/wbthomason/packer.nvim):
 ```lua
 use {
   "rootiest/nvim-updater.nvim",
+  tag = "*", -- Pin to GitHub releases
   config = function()
     require("nvim_updater").setup({
       source_dir = "~/.local/src/neovim",  -- Custom target directory
@@ -101,28 +104,23 @@ use {
       notify_updates = true,               -- Enables update notifications
       default_keymaps = false,             -- Disable default keymaps
     })
-  end,
-  keys = { -- Custom keymappings
-    { -- Custom Update Neovim
-      "<Leader>cuU",
-      function()
-        require('nvim_updater').update_neovim()
-      end,
-      desc = "Custom Update Neovim"
-    },
-    { -- Debug Build Neovim
-      "<Leader>cuD",
-      function()
-        require('nvim_updater').update_neovim({ build_type = 'Debug' })
-      end,
-      desc = "Debug Build Neovim"
-    },
-    { -- Remove Neovim Source
+
+    -- Define custom keymappings here
+    vim.keymap.set("n", "<Leader>cuU", function()
+      require('nvim_updater').update_neovim()
+    end, { desc = "Custom Update Neovim" })
+
+    vim.keymap.set("n", "<Leader>cuD", function()
+      require('nvim_updater').update_neovim({ build_type = 'Debug' })
+    end, { desc = "Debug Build Neovim" })
+
+    vim.keymap.set(
+      "n",
       "<Leader>cRN",
       ":NVUpdateRemoveSource<CR>",
-      desc = "Remove Neovim Source Directory",
-    },
-  }
+      { desc = "Remove Neovim Source Directory"
+    })
+  end,
 }
 ```
 
