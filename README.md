@@ -44,6 +44,7 @@ To use the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
 ```lua
 {
   "rootiest/nvim-updater.nvim",
+  version = "*", -- Pin to GitHub releases
   config = function()
     require("nvim_updater").setup({
       source_dir = "~/.local/src/neovim",  -- Custom target directory
@@ -83,6 +84,7 @@ Minimal example with defaults in [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
   {
     "rootiest/nvim-updater.nvim",
+    version = "*", -- Pin to GitHub releases
     opts = {},
   }
 ```
@@ -92,6 +94,7 @@ Example with [packer.nvim](https://github.com/wbthomason/packer.nvim):
 ```lua
 use {
   "rootiest/nvim-updater.nvim",
+  tag = "*", -- Pin to GitHub releases
   config = function()
     require("nvim_updater").setup({
       source_dir = "~/.local/src/neovim",  -- Custom target directory
