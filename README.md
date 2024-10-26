@@ -330,11 +330,11 @@ after you’ve built and installed Neovim.
   This command allows you to check for new updates and show the changes
   in the [DiffView](https://github.com/sindrets/diffview.nvim) plugin.
 
-- **`:NVUpdateShowNewCommitsInTelescope`**: Shows new updates available in
+- **`:NVUpdatePickNewCommits`**: Shows new updates available in
   the [Telescope](https://github.com/nvim-telescope/telescope.nvim) plugin.
 
   ```vim
-  :NVUpdateShowNewCommitsInTelescope
+  :NVUpdatePickNewCommits
   ```
 
   This command allows you to check for new updates and show the changes
@@ -432,7 +432,7 @@ with the new commits/changes on the remote repository vs the local src directory
 #### Show new commits in Telescope
 
 ```lua
- require("nvim_updater.utils").show_new_commits_in_telescope()
+ require("nvim_updater").show_new_commits_in_telescope()
 ```
 
 This function opens [Telescope](https://github.com/nvim-telescope/telescope.nvim)
