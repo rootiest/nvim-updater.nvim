@@ -498,27 +498,6 @@ function P.show_new_commits_in_telescope()
 	})
 end
 
---- Initialize Neovim updater plugin configuration
----@function P.setup
----@param user_config table|nil User configuration overriding default values
-function P.setup(user_config)
-	P.default_config = vim.tbl_deep_extend("force", P.default_config, user_config or {})
-
-	-- Setup default keymaps only if not overridden by user configuration
-	setup_default_keymaps()
-
-	-- Setup Neovim user commands
-	P.setup_usercmds()
-
-	-- Check for updates
-	if P.default_config.check_for_updates then
-		utils.get_commit_count()
-		if P.default_config.update_interval > 0 then
-			utils.update_timer(P.default_config.update_interval)
-		end
-	end
-end
-
 --- Create user commands for both updating and removing Neovim source directories
 ---@function P.setup_usercmd
 function P.setup_usercmds()
@@ -579,5 +558,26 @@ vim.api.nvim_create_user_command("NVUpdatePickNewCommits", function()
 end, {
 	desc = "Pick new commits in telescope",
 })
+
+--- Initialize Neovim updater plugin configuration
+---@function P.setup
+---@param user_config table|nil User configuration overriding default values
+function P.setup(user_config)
+	P.default_config = vim.tbl_deep_extend("force", P.default_config, user_config or {})
+
+	-- Setup default keymaps only if not overridden by user configuration
+	setup_default_keymaps()
+
+	-- Setup Neovim user commands
+	P.setup_usercmds()
+
+	-- Check for updates
+	if P.default_config.check_for_updates then
+		utils.get_commit_count()
+		if P.default_config.update_interval > 0 then
+			utils.update_timer(P.default_config.update_interval)
+		end
+	end
+end
 
 return P
