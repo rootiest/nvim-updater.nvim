@@ -61,22 +61,26 @@ function U.ConfirmPrompt(prompt, action)
 		if type(action) == "function" then
 			action() -- Call the function
 		elseif type(action) == "string" then
-			vim.cmd(action) -- Run the Vim command
+			vim.fn.nvim_exec_lua(action, {}) -- Run the Vim command as Lua
 		else
 			U.notify("Action must be a function or a string", vim.log.levels.ERROR)
 		end
 	end
+
 	-- Create a new buffer
 	local buf = vim.api.nvim_create_buf(false, true) -- Create a new empty buffer
+
 	-- Set the prompt text in the buffer
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, { prompt, "y/n: " })
-	-- Create a floating window to display the buffer
-	local win_height = 2 -- Height of floating window
-	local win_width = math.floor(vim.o.columns * 0.25) -- Width of floating window
+
+	-- Variables for the floating window
+	local win_height = 2 -- Height of the floating window
+	local win_width = math.floor(vim.o.columns * 0.25) -- Width of the floating window
 	local row = math.floor((vim.o.lines - win_height) / 2) -- Position row
 	local col = math.floor((vim.o.columns - win_width) / 2) -- Position column
 	local win_border = "rounded"
 	local style = "minimal"
+
 	-- Create a floating window
 	local win = vim.api.nvim_open_win(buf, true, {
 		relative = "editor",
@@ -87,49 +91,75 @@ function U.ConfirmPrompt(prompt, action)
 		style = style,
 		border = win_border,
 	})
+
 	-- Move the cursor to the end of the buffer
 	vim.api.nvim_win_set_cursor(win, { 2, 5 })
+
+	-- Function for closing the window and cleaning up
+	local autocmd_id
+	local function close_window()
+		if autocmd_id then
+			vim.api.nvim_del_autocmd(autocmd_id) -- Remove the resize autocmd
+			autocmd_id = nil
+		end
+		vim.api.nvim_win_close(win, true) -- Close the window
+	end
+
+	-- Update the floating window size on Vim resize events
+	autocmd_id = vim.api.nvim_create_autocmd({ "VimResized" }, {
+		callback = function()
+			-- Get new dimensions of the main UI
+			win_width = math.floor(vim.o.columns * 0.25) -- Update width
+			col = math.floor((vim.o.columns - win_width) / 2) -- Recalculate center column
+			row = math.floor((vim.o.lines - win_height) / 2) -- Recalculate center row
+
+			-- Update floating window configuration
+			vim.api.nvim_win_set_config(win, {
+				relative = "editor",
+				width = win_width,
+				height = win_height,
+				col = col,
+				row = row,
+			})
+		end,
+	})
+
 	-- Define the yes function
 	local yes = function()
-		vim.api.nvim_win_close(win, true)
+		close_window() -- Close window before performing action
 		perform_action() -- Perform the action
 		return true
 	end
+
 	-- Define the no function
 	local no = function()
-		vim.api.nvim_win_close(win, true)
+		close_window() -- Close window and notify
 		U.notify("Action Canceled", vim.log.levels.INFO)
 	end
+
 	-- Define buffer-specific key mappings
 	local keymaps = {
-		y = function()
-			yes()
-		end,
-		n = function()
-			no()
-		end,
-		q = function()
-			no()
-		end,
-		["<Esc>"] = function()
-			no()
-		end,
+		y = yes,
+		n = no,
+		q = no,
+		["<Esc>"] = no,
 	}
+
 	-- Set the key mappings
 	for key, callback in pairs(keymaps) do
 		vim.api.nvim_buf_set_keymap(buf, "n", key, "", {
 			noremap = true,
 			nowait = true,
 			callback = callback,
+			desc = key == "y" and "Confirm action" or "Cancel action",
 		})
 	end
 
 	return false
 end
-
---- Helper to display floating terminal in a centered, minimal Neovim window.
---- This is useful for running long shell commands like building Neovim.
---- You can pass arguments either as positional or as a table of options.
+-- Helper to display floating terminal in a centered, minimal Neovim window.
+-- This is useful for running long shell commands like building Neovim.
+-- You can pass arguments either as positional or as a table of options.
 ---@param command_or_opts string|table Either a shell command (string) or a table with options
 ---@param filetype? string Custom filetype for terminal buffer (optional if using table)
 ---@param ispreupdate? boolean Whether the terminal is for changelog before updating Neovim (optional if using table)
@@ -140,10 +170,8 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 
 	-- Determine if the first argument is a table or positional arguments
 	if type(command_or_opts) == "table" then
-		-- Use table values directly
 		opts = command_or_opts
 	else
-		-- Otherwise treat it as positional arguments
 		opts = {
 			command = command_or_opts or "",
 			filetype = filetype or "floating.term", -- Default filetype
@@ -168,44 +196,66 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	-- Set the filetype of the terminal buffer
 	vim.api.nvim_set_option_value("filetype", filetype, { buf = buf })
 
-	-- Get UI dimensions to calculate window size
-	local ui = vim.api.nvim_list_uis()[1]
-	local win_width = math.floor(ui.width * 0.8)
-	local win_height = math.floor(ui.height * 0.8)
-
-	-- Define window options
-	local win_opts = {
-		style = "minimal",
-		relative = "editor",
-		width = win_width,
-		height = win_height,
-		row = math.floor((ui.height - win_height) / 2),
-		col = math.floor((ui.width - win_width) / 2),
-		border = "rounded",
-	}
-
 	-- Create the floating window
-	local win = vim.api.nvim_open_win(buf, true, win_opts)
-	if not win or win == 0 then
-		U.notify("Failed to create floating window", vim.log.levels.ERROR)
-		return
+	local win
+	local autocmd_id
+
+	local function open_window()
+		-- Get UI dimensions to calculate window size
+		local ui = vim.api.nvim_list_uis()[1]
+		local win_width = math.floor(ui.width * 0.8)
+		local win_height = math.floor(ui.height * 0.8)
+
+		-- Define window options
+		local win_opts = {
+			style = "minimal",
+			relative = "editor",
+			width = win_width,
+			height = win_height,
+			row = math.floor((ui.height - win_height) / 2),
+			col = math.floor((ui.width - win_width) / 2),
+			border = "rounded",
+		}
+
+		-- Create or update the floating window
+		if win and vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_set_config(win, win_opts) -- Update window config
+		else
+			win = vim.api.nvim_open_win(buf, true, win_opts) -- Open new window
+			if not win or win == 0 then
+				U.notify("Failed to create floating window", vim.log.levels.ERROR)
+				return
+			end
+		end
+
+		-- Additional settings for the window
+		vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+		vim.api.nvim_set_option_value("winblend", 10, { win = win })
 	end
 
-	-- Set buffer and window options
-	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
-	vim.api.nvim_set_option_value("winblend", 10, { win = win })
+	open_window() -- Initial window creation
+
+	-- Update window size on Vim resize events
+	autocmd_id = vim.api.nvim_create_autocmd({ "VimResized" }, {
+		callback = function()
+			open_window() -- Call the function to update the window size
+		end,
+	})
 
 	-- Create the closing callback
-	local closing = function()
-		-- Close the terminal window
+	local function closing()
+		-- Remove the autocmd to prevent errors after the window is closed
+		if autocmd_id then
+			vim.api.nvim_del_autocmd(autocmd_id)
+			autocmd_id = nil
+		end
+
 		if vim.api.nvim_win_is_valid(win) then
 			vim.api.nvim_win_close(win, true)
 		end
-		-- If NVIMUPDATER_HEADLESS is set, exit immediately
 		if os.getenv("NVIMUPDATER_HEADLESS") then
 			vim.cmd("qa")
 		end
-		-- If isupdate is true, execute NVUpdateNeovim
 		if ispreupdate then
 			U.ConfirmPrompt("Perform Neovim update?", function()
 				require("nvim_updater").update_neovim()
@@ -223,46 +273,17 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 				end
 
 				-- Wait for a keypress before closing the terminal window
-				vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
-					noremap = true,
-					silent = true,
-					callback = function()
-						closing()
-					end,
-					desc = "Close terminal window",
-				})
-				vim.api.nvim_buf_set_keymap(buf, "n", "<Space>", "", {
-					noremap = true,
-					silent = true,
-					callback = function()
-						closing()
-					end,
-					desc = "Close terminal window",
-				})
-				vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
-					noremap = true,
-					silent = true,
-					callback = function()
-						closing()
-					end,
-					desc = "Close terminal window",
-				})
-				vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "", {
-					noremap = true,
-					silent = true,
-					callback = function()
-						closing()
-					end,
-					desc = "Close terminal window",
-				})
-				vim.api.nvim_buf_set_keymap(buf, "n", "y", "", {
-					noremap = true,
-					silent = true,
-					callback = function()
-						closing()
-					end,
-					desc = "Close terminal window",
-				})
+				-- Bind different keys to closing the terminal
+				for _, key in ipairs({ "q", "<Space>", "<CR>", "<Esc>", "y" }) do
+					vim.api.nvim_buf_set_keymap(buf, "n", key, "", {
+						noremap = true,
+						silent = true,
+						callback = function()
+							closing()
+						end,
+						desc = "Close terminal window",
+					})
+				end
 			else
 				U.notify("Command failed with exit code: " .. exit_code, vim.log.levels.ERROR)
 				vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
