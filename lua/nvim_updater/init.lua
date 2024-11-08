@@ -571,12 +571,14 @@ function P.setup(user_config)
 	-- Setup Neovim user commands
 	P.setup_usercmds()
 
-	-- Check for updates
+	-- Schedule async update check
 	if P.default_config.check_for_updates then
-		utils.get_commit_count()
-		if P.default_config.update_interval > 0 then
-			utils.update_timer(P.default_config.update_interval)
-		end
+		vim.defer_fn(function()
+			utils.get_commit_count()
+			if P.default_config.update_interval > 0 then
+				utils.update_timer(P.default_config.update_interval)
+			end
+		end, 50)
 	end
 end
 
