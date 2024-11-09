@@ -457,21 +457,72 @@ Available `[options]`:
 #### Open floating terminal
 
 ```lua
-require("nvim_updater.utils").open_floating_terminal( [options] )
+require("nvim_updater.utils").open_floating_terminal( [TerminalOptions] )
 ```
 
 This is a helper function for opening a floating terminal that is used by the
 updater to display the terminal output.
 
-Available `[options]`:
+Available `[TerminalOptions]`:
 
 - **`cmd`**: Command to run in the terminal.
 - **`filetype`**: Filetype to assign to the terminal buffer.
   Default is `"nvim_updater_term"`.
-- **`ispreupdate`**: Whether the terminal will be followed by an update build.
+- **`ispreupdate`**: (Deprecated)
+  Whether the terminal will be followed by an update build.
   Default is `false`.
 - **`autoclose`**: Whether the terminal buffer will be closed when the process ends.
   Default is `false`.
+- **`callback`**: A function to call when the terminal buffer is closed.
+  Default is `nil`.
+
+  > [!NOTE]  
+  > The `ispreupdate` option is now deprecated and will be removed in a future version.
+
+  ##### Callback Function
+
+  The callback function allows you to define a function to be triggered when the
+  terminal buffer is closed.
+
+  The callback function is called with the following arguments:
+
+  - `ev`: The [event object](https://neovim.io/doc/user/api.html#event-args)
+    received from the terminal close event.
+  - `exit_code`: The exit code of the process that was run in the terminal buffer.
+
+  In most cases, this will occur after the process has completed.
+
+  However, if the window is closed before the process is complete, the exit code
+  returned will be `-1`. This allows us to identify those scenarios and handle them
+  appropriately.
+
+  Here is an example of how to use the callback function:
+
+  ```lua
+  require("nvim_updater.utils").open_floating_terminal({
+    command = "my_test_script.sh", -- Command to run
+    filetype = "my_test_script_term", -- Filetype to assign
+    autoclose = true, -- Close the terminal buffer automatically
+    callback = function(result) -- Callback function
+      if result.result_code == -1 then
+        vim.notify(
+          "Terminal closed before process completed",
+          vim.log.levels.ERROR
+        )
+      elseif result.result_code == 0 then
+        vim.notify(
+          "Terminal process completed successfully",
+          vim.log.levels.INFO
+        )
+      else
+        vim.notify(
+          "Terminal process failed with exit code: " .. result.result_code,
+          vim.log.levels.ERROR
+        )
+      end
+    end,
+  })
+  ```
 
 #### Setup
 
