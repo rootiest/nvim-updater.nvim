@@ -157,16 +157,38 @@ function U.ConfirmPrompt(prompt, action)
 
 	return false
 end
+
+--- Options table for configuring the floating terminal.
+---@class TerminalOptions
+---@field command string The shell command to run in the terminal
+---@field filetype? string Custom filetype for terminal buffer (optional)
+---@field ispreupdate? boolean @deprecated Whether the terminal is for changelog before updating Neovim (optional)
+---                            (This is deprecated and will be removed in a future version)
+---                            Please use the `callback` function instead.
+---@field autoclose? boolean Whether the terminal should be automatically closed (optional)
+---@field callback? fun(params?: TerminalCloseParams) Callback function to run after the terminal is closed
+
+--- Callback parameter table for the floating terminal close event.
+---@class TerminalCloseParams
+---@field ev? table The close event object (optional)
+---@field result_code? integer The exit code of the terminal command process (optional)
+
 -- Helper to display floating terminal in a centered, minimal Neovim window.
 -- This is useful for running long shell commands like building Neovim.
--- You can pass arguments either as positional or as a table of options.
----@param command_or_opts string|table Either a shell command (string) or a table with options
----@param filetype? string Custom filetype for terminal buffer (optional if using table)
----@param ispreupdate? boolean Whether the terminal is for changelog before updating Neovim (optional if using table)
----@param autoclose? boolean Whether the terminal should be automatically closed (optional if using table)
----@function open_floating_terminal
-function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose)
+-- You can pass arguments either as positional values or as a table of options.
+---@param command_or_opts string|TerminalOptions Either a shell command (string) or a table of options
+---@param filetype? string Custom filetype for terminal buffer (optional if using positional arguments)
+---@param ispreupdate? boolean @deprecated Whether the terminal is for changelog before updating Neovim (optional if using positional arguments)
+---                            (This is deprecated and will be removed in a future version)
+---                            Please use the `callback` function instead.
+---@param autoclose? boolean Whether the terminal should be automatically closed (optional if using positional arguments)
+---@param callback? fun(params?: TerminalCloseParams) Callback function to run after the terminal is closed
+--
+-- This allows any function to be called after the terminal is closed,
+-- receiving the command result and event information in a single parameter table.
+function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose, callback)
 	local opts
+	local result_code = -1 -- Indicates the command is still running
 
 	-- Determine if the first argument is a table or positional arguments
 	if type(command_or_opts) == "table" then
@@ -177,6 +199,7 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 			filetype = filetype or "floating.term", -- Default filetype
 			ispreupdate = ispreupdate or false,
 			autoclose = autoclose or false,
+			callback = callback or nil,
 		}
 	end
 
@@ -185,6 +208,9 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	filetype = opts.filetype or "FloatingTerm"
 	ispreupdate = opts.ispreupdate or false
 	autoclose = opts.autoclose or false
+	callback = opts.callback or function()
+		return true
+	end
 
 	-- Create a new buffer for the terminal, set it as non-listed and scratch
 	local buf = vim.api.nvim_create_buf(false, true)
@@ -266,6 +292,7 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	-- Run the terminal command
 	vim.fn.termopen(command, {
 		on_exit = function(_, exit_code)
+			result_code = exit_code
 			if exit_code == 0 then
 				if autoclose then -- If autoclose is true, close the terminal window
 					closing()
@@ -285,7 +312,7 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 					})
 				end
 			else
-				U.notify("Command failed with exit code: " .. exit_code, vim.log.levels.ERROR)
+				U.notify("Command failed with exit code: " .. exit_code, vim.log.levels.DEBUG)
 				vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
 					noremap = true,
 					silent = true,
@@ -299,6 +326,18 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 			end
 		end,
 	})
+
+	-- Create an autocmd for the window closing callback
+	if callback then
+		local winid = tostring(win)
+		vim.api.nvim_create_autocmd("WinClosed", {
+			pattern = winid, -- Use the window ID as the pattern
+			callback = function(ev)
+				callback({ ev = ev, result_code = result_code })
+				return true
+			end,
+		})
+	end
 end
 
 --- Helper function to return the number of pending commits

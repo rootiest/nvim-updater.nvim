@@ -141,8 +141,23 @@ function P.update_neovim(opts)
 
 	local build_command = "cd " .. source_dir .. " && make CMAKE_BUILD_TYPE=" .. build_type .. " && sudo make install"
 
+	local update_command = git_commands .. " && " .. build_command
+
 	-- Use the open_floating_terminal from the 'utils' module
-	utils.open_floating_terminal(git_commands .. " && " .. build_command, "neovim_updater_term.updating", false, true)
+	utils.open_floating_terminal({
+		command = update_command,
+		filetype = "neovim_updater_term.updating",
+		ispreupdate = false,
+		autoclose = true,
+		callback = function(results)
+			if results.result_code ~= 0 then
+				utils.notify("Neovim update failed with error code: " .. results.result_code, vim.log.levels.ERROR)
+			else
+				utils.notify("Neovim update complete!", vim.log.levels.INFO)
+				utils.notify("Please restart Neovim for the changes to take effect.", vim.log.levels.INFO)
+			end
+		end,
+	})
 
 	-- Go to insert mode
 	vim.cmd("startinsert")
@@ -154,7 +169,10 @@ end
 --- Remove the Neovim source directory or a custom one.
 ---@function P.remove_source_dir
 ---@param opts table|nil Optional table for 'source_dir'
----@return boolean success True if the directory was successfully removed, false otherwise
+---@return boolean|nil success True if the directory was successfully removed
+---                            False if the directory does not exist or an error occurred
+---                            nil if the function is delayed until the terminal is closed
+---                            Check the U.defered_value variable for the result
 function P.remove_source_dir(opts)
 	opts = opts or {}
 	local source_dir = opts.source_dir ~= "" and opts.source_dir or P.default_config.source_dir
@@ -172,12 +190,47 @@ function P.remove_source_dir(opts)
 				if not err then
 					err = "Unknown error"
 				end
-				utils.notify(
-					"Error removing Neovim source directory: " .. source_dir .. "\n" .. err,
-					vim.log.levels.ERROR
-				)
 				utils.notify("Source directory removal failed with vim.fs.rm", vim.log.levels.DEBUG)
-				return false
+
+				-- Define callback function for checking rm
+				local function check_rm()
+					-- Check if the source directory still exists
+					if not utils.directory_exists(source_dir) then
+						utils.notify(
+							"Successfully removed Neovim source directory: " .. source_dir,
+							vim.log.levels.INFO
+						)
+						return true
+					end
+					utils.notify("Failed to remove Neovim source directory: " .. source_dir, vim.log.levels.ERROR)
+					return false
+				end
+
+				-- Attempt to remove with elevated privileges
+				local rm_msg = "echo Attempting to remove source directory with elevated privileges.\n"
+					.. "echo Please authorize sudo and press enter.\n"
+				local privileged_rm = rm_msg .. "sudo rm -rf " .. source_dir
+				utils.open_floating_terminal({
+					command = privileged_rm,
+					filetype = "neovim_updater_term.privileged_rm",
+					ispreupdate = false,
+					autoclose = true,
+					callback = function(results)
+						if results.result_code == 0 then
+							-- Double-check the results
+							check_rm()
+						else
+							utils.notify(
+								"Failed to remove Neovim source directory: " .. source_dir,
+								vim.log.levels.ERROR
+							)
+						end
+					end,
+				})
+				-- Go to insert mode
+				vim.cmd("startinsert")
+
+				return nil
 			end
 		end
 		-- Fallback to vim.fn.delete if vim.fs.rm is not available
@@ -211,23 +264,40 @@ function P.generate_source_dir(opts)
 	local repo = "https://github.com/neovim/neovim.git"
 	local branch = opts.branch ~= "" and opts.branch or P.default_config.branch
 
-	-- Build the command to fetch the latest changes from the remote repository
-	local fetch_command = ("cd ~ && git clone %s %s"):format(repo, source_dir)
+	if not utils.directory_exists(source_dir) then
+		-- Build the command to fetch the latest changes from the remote repository
+		local fetch_command = ("cd ~ && git clone %s %s"):format(repo, source_dir)
 
-	-- Checkout the branch
-	local checkout_command = "cd " .. source_dir .. " && git checkout " .. branch
+		-- Checkout the branch
+		local checkout_command = "cd " .. source_dir .. " && git checkout " .. branch
 
-	-- Combine commands
-	local complete_command = fetch_command .. " && " .. checkout_command
+		-- Combine commands
+		local complete_command = fetch_command .. " && " .. checkout_command
 
-	-- Notify the user that the clone is starting
-	utils.notify("Cloning Neovim source...", vim.log.levels.INFO)
+		-- Notify the user that the clone is starting
+		utils.notify("Cloning Neovim source...", vim.log.levels.INFO)
 
-	-- Open a terminal window
-	utils.open_floating_terminal(complete_command, "neovim_updater_term.cloning", false, false)
+		-- Open a terminal window
+		utils.open_floating_terminal({
+			command = complete_command,
+			filetype = "neovim_updater_term.cloning",
+			ispreupdate = false,
+			autoclose = true,
+			callback = function(results)
+				if results.result_code == 0 then
+					utils.notify("Neovim source cloned successfully", vim.log.levels.INFO)
+				else
+					utils.notify("Failed to clone Neovim source: " .. results.result_code, vim.log.levels.ERROR)
+				end
+			end,
+		})
 
-	-- Set the update count to "0"
-	P.last_status.count = "0"
+		-- Set the update count to "0"
+		P.last_status.count = "0"
+	else
+		-- Notify the user that the source directory already exists
+		utils.notify("Neovim source directory already exists: " .. source_dir, vim.log.levels.WARN)
+	end
 
 	-- Return the source directory
 	return source_dir
@@ -354,9 +424,10 @@ end
 --- @param short? boolean Optional. Whether to show a short commit list. Only used if `isupdate` is a boolean.
 function P.show_new_commits(isupdate, short)
 	-- If the first argument is a table, treat it as an options table.
+	local doupdate = false
 	if type(isupdate) == "table" then
 		local opts = isupdate
-		isupdate = opts.isupdate
+		doupdate = opts.isupdate
 		short = opts.short
 	end
 	-- Define the path to the Neovim source directory
@@ -409,8 +480,15 @@ function P.show_new_commits(isupdate, short)
 			utils.open_floating_terminal({
 				command = term_command,
 				filetype = "neovim_updater_term.changes",
-				ispreupdate = isupdate,
+				ispreupdate = false,
 				autoclose = false,
+				callback = function()
+					if doupdate then
+						utils.ConfirmPrompt("Perform Neovim update?", function()
+							P.update_neovim()
+						end)
+					end
+				end,
 			})
 		else
 			utils.notify("No new Neovim commits.", vim.log.levels.INFO)
