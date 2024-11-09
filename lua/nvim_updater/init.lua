@@ -153,7 +153,7 @@ function P.update_neovim(opts)
 			if results.result_code ~= 0 then
 				utils.notify("Neovim update failed with error code: " .. results.result_code, vim.log.levels.ERROR)
 			else
-				utils.notify("Neovim update complete!", vim.log.levels.INFO)
+				utils.notify("Neovim update complete!", vim.log.levels.INFO, true)
 				utils.notify("Please restart Neovim for the changes to take effect.", vim.log.levels.INFO)
 			end
 		end,
@@ -183,7 +183,7 @@ function P.remove_source_dir(opts)
 			-- Use pcall to attempt to call the function
 			local success, err = pcall(vim.fs.rm, source_dir, { recursive = true, force = true })
 			if success then
-				utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO)
+				utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO, true)
 				utils.notify("Source directory removed with vim.fs.rm", vim.log.levels.DEBUG)
 				return true
 			else
@@ -198,7 +198,8 @@ function P.remove_source_dir(opts)
 					if not utils.directory_exists(source_dir) then
 						utils.notify(
 							"Successfully removed Neovim source directory: " .. source_dir,
-							vim.log.levels.INFO
+							vim.log.levels.INFO,
+							true
 						)
 						return true
 					end
@@ -236,7 +237,7 @@ function P.remove_source_dir(opts)
 		-- Fallback to vim.fn.delete if vim.fs.rm is not available
 		local success, err = vim.fn.delete(source_dir, "rf")
 		if success == 0 then
-			utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO)
+			utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO, true)
 			utils.notify("Source directory removed with vim.fn.delete", vim.log.levels.DEBUG)
 			return true
 		else
@@ -285,7 +286,7 @@ function P.generate_source_dir(opts)
 			autoclose = true,
 			callback = function(results)
 				if results.result_code == 0 then
-					utils.notify("Neovim source cloned successfully", vim.log.levels.INFO)
+					utils.notify("Neovim source cloned successfully", vim.log.levels.INFO, true)
 				else
 					utils.notify("Failed to clone Neovim source: " .. results.result_code, vim.log.levels.ERROR)
 				end
@@ -446,7 +447,7 @@ function P.show_new_commits(isupdate, short)
 	vim.fn.system(fetch_command)
 
 	-- Build the git command to show commits that are in the remote branch but not in local
-	local current_branch_cmd = ("cd %s && git rev-parse --abbrev-ref HEAD"):format(source_dir)
+	local current_branch_cmd = ("cd %s && Git rev-parse --abbrev-ref HEAD"):format(source_dir)
 
 	local current_branch = vim.fn.system(current_branch_cmd):gsub("%s+", "") -- Trim whitespace
 
@@ -491,7 +492,7 @@ function P.show_new_commits(isupdate, short)
 				end,
 			})
 		else
-			utils.notify("No new Neovim commits.", vim.log.levels.INFO)
+			utils.notify("No new Neovim commits.", vim.log.levels.INFO, true)
 			-- Update status count
 			P.last_status.count = "0"
 		end
