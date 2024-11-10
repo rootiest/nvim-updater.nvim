@@ -448,7 +448,7 @@ function P.show_new_commits(isupdate, short)
 	vim.fn.system(fetch_command)
 
 	-- Build the git command to show commits that are in the remote branch but not in local
-	local current_branch_cmd = ("cd %s && Git rev-parse --abbrev-ref HEAD"):format(source_dir)
+	local current_branch_cmd = ("cd %s && git rev-parse --abbrev-ref HEAD"):format(source_dir)
 
 	local current_branch = vim.fn.system(current_branch_cmd):gsub("%s+", "") -- Trim whitespace
 
