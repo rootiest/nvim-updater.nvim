@@ -430,6 +430,7 @@ function P.show_new_commits(isupdate, short)
 		local opts = isupdate
 		doupdate = opts.isupdate
 		short = opts.short
+		isupdate = opts.isupdate
 	end
 	-- Define the path to the Neovim source directory
 	local source_dir = P.default_config.source_dir
