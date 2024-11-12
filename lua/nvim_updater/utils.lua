@@ -413,4 +413,150 @@ function U.is_installed(plugin)
 	end
 end
 
+--- Function to execute a shell command and return the output as a tabl
+---@param command string|string[] The shell command(s) to execute
+---@return string[] output The output of the shell command
+function U.run_hidden_command(command)
+	-- Convert the command to a string if it's a table
+	if type(command) == "table" then
+		command = table.concat(command, "\n")
+	end
+	-- Execute the command and capture the output
+	local handle = io.popen(command)
+
+	-- Check if the handle is nil (command may have failed)
+	if not handle then
+		error("Failed to run command: " .. command) -- Raise an error if the command failed
+	end
+
+	local output = handle:read("*a") -- Read all output
+	handle:close() -- Important to close the handle safely
+
+	-- Check if the output is nil to avoid issues with splitting
+	if output == nil then
+		return {} -- Return an empty table if there is no output
+	end
+
+	-- Split output by newline into a table
+	local lines = {}
+	for line in output:gmatch("[^\n]+") do
+		table.insert(lines, line) -- Insert each line into the table
+	end
+
+	return lines
+end
+
+--- Function to draw a floating window to display data
+---@param data string[] The data to display in the floating window
+---@return boolean success True if the floating window was successfully drawn
+function U.draw_floating_window(data)
+	-- Verify the data is not empty
+	if not data or #data == 0 then
+		U.notify("No data to display", vim.log.levels.WARN)
+		return false
+	end
+
+	-- Add a padding character to each line
+	for i = 1, #data do
+		data[i] = data[i] .. " "
+	end
+
+	local width = 0
+	local height = #data - 2
+
+	-- Find the width of the longest line for proper sizing
+	for _, line in ipairs(data) do
+		width = math.max(width, #line)
+	end
+
+	-- Determine padding and calculate window size
+	local padded_width = width + 2
+	local padded_height = height + 2
+
+	-- Get the current window's dimensions
+	local win_id = vim.api.nvim_get_current_win()
+	local win_config = vim.api.nvim_win_get_config(win_id)
+	local current_win_width = win_config.width
+	local current_win_height = win_config.height
+
+	-- Calculate the center position for the floating window
+	local col = math.floor((current_win_width - padded_width) / 2)
+	local row = math.floor((current_win_height - padded_height) / 2)
+
+	local buf_id = vim.api.nvim_create_buf(false, true) -- Create a new buffer (scratch)
+
+	-- Set buffer content to the output
+	vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, data)
+
+	-- Set window options for floating window
+	local opts = {
+		relative = "win",
+		win = win_id,
+		width = padded_width,
+		height = padded_height,
+		anchor = "NW",
+		col = col,
+		row = row,
+		border = "rounded", -- Rounded border
+	}
+
+	-- Create floating window
+	local float_win_id = vim.api.nvim_open_win(buf_id, true, opts)
+
+	-- Disable line numbers
+	vim.api.nvim_set_option_value("number", false, { scope = "local", win = float_win_id }) -- Disable line numbers
+	vim.api.nvim_set_option_value("relativenumber", false, { scope = "local", win = float_win_id }) -- Disable relative line numbers
+
+	-- Set additional options for the floating window
+	vim.api.nvim_set_option_value("wrap", true, { scope = "local", win = float_win_id }) -- Enable line wrapping
+	vim.api.nvim_set_option_value("scrolloff", 0, { scope = "local", win = float_win_id }) -- Disable scrolloff for horizontal
+	vim.api.nvim_set_option_value("sidescrolloff", 0, { scope = "local", win = float_win_id }) -- Disable scrolloff for vertical
+	vim.api.nvim_set_option_value("list", false, { scope = "local", win = float_win_id }) -- Disable whitespace characters
+
+	-- Helper function to close the floating window
+	local function closing()
+		vim.api.nvim_win_close(float_win_id, true)
+	end
+
+	-- Helper function to pick an item
+	local function picking()
+		local line = vim.api.nvim_get_current_line()
+		local item = line:match("%s*(.*)"):gsub("%s+$", "") -- Remove trailing spaces
+		-- Store item in register
+		vim.fn.setreg('"', item)
+		closing()
+	end
+
+	-- Bind keys for closing
+	for _, key in ipairs({ "q", "<Esc>" }) do
+		vim.api.nvim_buf_set_keymap(buf_id, "n", key, "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				closing()
+			end,
+			desc = "Close terminal window",
+		})
+	end
+
+	-- Bind keys for picking
+	for _, key in ipairs({ "y", "<CR>", "<Space>" }) do
+		vim.api.nvim_buf_set_keymap(buf_id, "n", key, "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				picking()
+			end,
+			desc = "Select item",
+		})
+	end
+
+	-- Check for errors
+	if float_win_id == 0 then
+		U.notify("Failed to create floating window", vim.log.levels.ERROR)
+		return false
+	end
+	return true
+end
+
 return U
