@@ -196,6 +196,7 @@ function P.remove_source_dir(opts)
 			-- Use pcall to attempt to call the function
 			local success, err = pcall(vim.fs.rm, source_dir, { recursive = true, force = true })
 			if success then
+				P.last_status.count = "?"
 				utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO, true)
 				utils.notify("Source directory removed with vim.fs.rm", vim.log.levels.DEBUG)
 				update_with_retry()
@@ -210,6 +211,7 @@ function P.remove_source_dir(opts)
 				local function check_rm()
 					-- Check if the source directory still exists
 					if not utils.directory_exists(source_dir) then
+						P.last_status.count = "?"
 						utils.notify(
 							"Successfully removed Neovim source directory: " .. source_dir,
 							vim.log.levels.INFO,
@@ -254,6 +256,7 @@ function P.remove_source_dir(opts)
 		-- Fallback to vim.fn.delete if vim.fs.rm is not available
 		local success, err = vim.fn.delete(source_dir, "rf")
 		if success == 0 then
+			P.last_status.count = "?"
 			utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO, true)
 			utils.notify("Source directory removed with vim.fn.delete", vim.log.levels.DEBUG)
 			update_with_retry()
