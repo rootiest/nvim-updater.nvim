@@ -20,6 +20,7 @@ P.default_config = {
 
 P.last_status = {
 	count = "?",
+	retry = false,
 }
 
 --- Setup default keymaps for updating Neovim or removing source based on user configuration.
@@ -111,6 +112,14 @@ function P.update_with_changes()
 	P.show_new_commits(true)
 end
 
+--- Helper function to retry update
+local function update_with_retry()
+	if P.last_status.retry then
+		P.last_status.retry = false
+		P.update_neovim()
+	end
+end
+
 --- Update Neovim from source and show progress in a floating terminal.
 ---@param opts table|nil Optional options for the update process (branch, build_type, etc.)
 function P.update_neovim(opts)
@@ -152,18 +161,22 @@ function P.update_neovim(opts)
 		callback = function(results)
 			if results.result_code ~= 0 then
 				utils.notify("Neovim update failed with error code: " .. results.result_code, vim.log.levels.ERROR)
+				utils.ConfirmPrompt("Remove build directory and try again?", function()
+					P.last_status.count = "?"
+					P.last_status.retry = true
+					P.remove_source_dir({ source_dir = source_dir .. "/build" })
+				end)
 			else
 				utils.notify("Neovim update complete!", vim.log.levels.INFO, true)
 				utils.notify("Please restart Neovim for the changes to take effect.", vim.log.levels.INFO)
+				-- Update the status count
+				P.last_status.count = "0"
 			end
 		end,
 	})
 
 	-- Go to insert mode
 	vim.cmd("startinsert")
-
-	-- Update the status count
-	P.last_status.count = "0"
 end
 
 --- Remove the Neovim source directory or a custom one.
@@ -185,6 +198,7 @@ function P.remove_source_dir(opts)
 			if success then
 				utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO, true)
 				utils.notify("Source directory removed with vim.fs.rm", vim.log.levels.DEBUG)
+				update_with_retry()
 				return true
 			else
 				if not err then
@@ -201,6 +215,7 @@ function P.remove_source_dir(opts)
 							vim.log.levels.INFO,
 							true
 						)
+						update_with_retry()
 						return true
 					end
 					utils.notify("Failed to remove Neovim source directory: " .. source_dir, vim.log.levels.ERROR)
@@ -208,7 +223,9 @@ function P.remove_source_dir(opts)
 				end
 
 				-- Attempt to remove with elevated privileges
-				local rm_msg = "echo Attempting to remove source directory with elevated privileges.\n"
+				local rm_msg = "echo Attempting to remove "
+					.. source_dir
+					.. " directory with elevated privileges.\n"
 					.. "echo Please authorize sudo and press enter.\n"
 				local privileged_rm = rm_msg .. "sudo rm -rf " .. source_dir
 				utils.open_floating_terminal({
@@ -239,6 +256,7 @@ function P.remove_source_dir(opts)
 		if success == 0 then
 			utils.notify("Successfully removed Neovim source directory: " .. source_dir, vim.log.levels.INFO, true)
 			utils.notify("Source directory removed with vim.fn.delete", vim.log.levels.DEBUG)
+			update_with_retry()
 			return true
 		else
 			if not err then
@@ -287,14 +305,14 @@ function P.generate_source_dir(opts)
 			callback = function(results)
 				if results.result_code == 0 then
 					utils.notify("Neovim source cloned successfully", vim.log.levels.INFO, true)
+					-- Set the update count to "0"
+					P.last_status.count = "0"
 				else
 					utils.notify("Failed to clone Neovim source: " .. results.result_code, vim.log.levels.ERROR)
+					P.last_status.count = "?"
 				end
 			end,
 		})
-
-		-- Set the update count to "0"
-		P.last_status.count = "0"
 	else
 		-- Notify the user that the source directory already exists
 		utils.notify("Neovim source directory already exists: " .. source_dir, vim.log.levels.WARN)
