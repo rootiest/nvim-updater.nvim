@@ -424,15 +424,15 @@ Available configuration fields:
                        Default is `false`.
                        When set to `false`, `INFO` and `DEBUG`
                         notifications from the plugin are suppressed.
-                       Opts: `true` - Enable verbose output
-                           `false` - Disable verbose output.
+                       Opts: `true`  - Enable verbose output
+                             `false` - Disable verbose output.
 
 - `check_for_updates`: (boolean) -> Enable automatic update checks.
                        Default is `false`.
                        When set to `false`, the plugin will not
                         check for updates automatically.
-                       Opts: `true` - Enable automatic update checks.
-                           `false` - Disable automatic update checks.
+                       Opts: `true`  - Enable automatic update checks.
+                             `false` - Disable automatic update checks.
 
 - `update_interval`: (number) -> Update interval in seconds.
                        Default is `(60 * 60 * 6)` (6 hours).
@@ -444,6 +444,18 @@ Available configuration fields:
                        Default is `false`
                        When set to `true`, the plugin will produce
                         notifications for new commits.
+                       Opts: `true`  - Enable periodic update notifications.
+                             `false` - Disable periodic update notifications.
+
+- `build_fresh`: (boolean) -> Remove the build directory before compiling.
+                       Default is `true`
+                       When set to `true`, the plugin will always
+                        remove the build directory before performing an
+                        update.
+                       Opts: `true`  - Always remove the build directory before
+                                        compiling.
+                             `false` - Do not attempt to remove the build
+                                        directory before compiling.
 
 - `default_keymaps`: (boolean) -> Enable default keymaps.
                        Default is `false`.

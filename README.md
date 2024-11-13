@@ -232,11 +232,18 @@ The `setup` function accepts an optional table to configure the plugin’s behav
    `number` - Update interval in seconds.
 
 - **`notify_updates`**: (boolean) Produce update notifications  
-  Default is `false`
+  Default is `false`.
 
   Possible values are:  
   `true` - Produce update notifications at update_interval.
   `false` - Do not produce update notifications.
+
+- **`build_fresh`**: (boolean) Remove the build directory before compiling.  
+  Default is `true`.
+
+  Possible values are:  
+   `true` - Always remove the build directory before compiling.  
+   `false` - Do not remove the build directory before compiling.
 
 - **`default_keymaps`**: (boolean) Enable default keymaps.  
   Default is `false`.
@@ -260,6 +267,7 @@ require("nvim_updater").setup({
   update_interval = (60 * 60) * 6,     -- 6 hours default update interval
   notify_updates = false,              -- Disable update notifications
   verbose = false,                     -- Disable verbose output
+  build_fresh = true,                  -- Remove the build directory before compiling
   default_keymaps = false,              -- Disable default keymaps
 })
 ```
