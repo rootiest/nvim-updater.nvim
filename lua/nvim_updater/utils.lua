@@ -185,176 +185,176 @@ end
 ---@param autoclose? boolean Whether the terminal should be automatically closed (optional if using positional arguments)
 ---@param callback? fun(params?: TerminalCloseParams) Callback function to run after the terminal is closed
 function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose, callback)
-    local opts
-    local result_code = -1 -- Indicates the command is still running
-    local output_lines = {} -- Store terminal output lines
+	local opts
+	local result_code = -1 -- Indicates the command is still running
+	local output_lines = {} -- Store terminal output lines
 
-    -- Determine if the first argument is a table or positional arguments
-    if type(command_or_opts) == "table" then
-        opts = command_or_opts
-    else
-        opts = {
-            command = command_or_opts or "",
-            filetype = filetype or "floating.term", -- Default filetype
-            ispreupdate = ispreupdate or false,
-            autoclose = autoclose or false,
-            callback = callback or nil,
-        }
-    end
+	-- Determine if the first argument is a table or positional arguments
+	if type(command_or_opts) == "table" then
+		opts = command_or_opts
+	else
+		opts = {
+			command = command_or_opts or "",
+			filetype = filetype or "floating.term", -- Default filetype
+			ispreupdate = ispreupdate or false,
+			autoclose = autoclose or false,
+			callback = callback or nil,
+		}
+	end
 
-    -- Extract options from the table
-    local command = opts.command or ""
-    filetype = opts.filetype or "FloatingTerm"
-    ispreupdate = opts.ispreupdate or false
-    autoclose = opts.autoclose or false
-    callback = opts.callback or function()
-        return true
-    end
+	-- Extract options from the table
+	local command = opts.command or ""
+	filetype = opts.filetype or "FloatingTerm"
+	ispreupdate = opts.ispreupdate or false
+	autoclose = opts.autoclose or false
+	callback = opts.callback or function()
+		return true
+	end
 
-    -- Create a new buffer for the terminal, set it as non-listed and scratch
-    local buf = vim.api.nvim_create_buf(false, true)
-    if not buf or buf == 0 then
-        U.notify("Failed to create terminal buffer", vim.log.levels.ERROR)
-        return
-    end
+	-- Create a new buffer for the terminal, set it as non-listed and scratch
+	local buf = vim.api.nvim_create_buf(false, true)
+	if not buf or buf == 0 then
+		U.notify("Failed to create terminal buffer", vim.log.levels.ERROR)
+		return
+	end
 
-    -- Set the filetype of the terminal buffer
-    vim.api.nvim_set_option_value("filetype", filetype, { buf = buf })
+	-- Set the filetype of the terminal buffer
+	vim.api.nvim_set_option_value("filetype", filetype, { buf = buf })
 
-    -- Create the floating window
-    local win
-    local autocmd_id
+	-- Create the floating window
+	local win
+	local autocmd_id
 
-    local function open_window()
-        -- Get UI dimensions to calculate window size
-        local ui = vim.api.nvim_list_uis()[1]
-        local win_width = math.floor(ui.width * 0.8)
-        local win_height = math.floor(ui.height * 0.8)
+	local function open_window()
+		-- Get UI dimensions to calculate window size
+		local ui = vim.api.nvim_list_uis()[1]
+		local win_width = math.floor(ui.width * 0.8)
+		local win_height = math.floor(ui.height * 0.8)
 
-        -- Define window options
-        local win_opts = {
-            style = "minimal",
-            relative = "editor",
-            width = win_width,
-            height = win_height,
-            row = math.floor((ui.height - win_height) / 2),
-            col = math.floor((ui.width - win_width) / 2),
-            border = "rounded",
-        }
+		-- Define window options
+		local win_opts = {
+			style = "minimal",
+			relative = "editor",
+			width = win_width,
+			height = win_height,
+			row = math.floor((ui.height - win_height) / 2),
+			col = math.floor((ui.width - win_width) / 2),
+			border = "rounded",
+		}
 
-        -- Create or update the floating window
-        if win and vim.api.nvim_win_is_valid(win) then
-            vim.api.nvim_win_set_config(win, win_opts) -- Update window config
-        else
-            win = vim.api.nvim_open_win(buf, true, win_opts) -- Open new window
-            if not win or win == 0 then
-                U.notify("Failed to create floating window", vim.log.levels.ERROR)
-                return
-            end
-        end
+		-- Create or update the floating window
+		if win and vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_set_config(win, win_opts) -- Update window config
+		else
+			win = vim.api.nvim_open_win(buf, true, win_opts) -- Open new window
+			if not win or win == 0 then
+				U.notify("Failed to create floating window", vim.log.levels.ERROR)
+				return
+			end
+		end
 
-        -- Additional settings for the window
-        vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
-        vim.api.nvim_set_option_value("winblend", 10, { win = win })
-    end
+		-- Additional settings for the window
+		vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+		vim.api.nvim_set_option_value("winblend", 10, { win = win })
+	end
 
-    open_window() -- Initial window creation
+	open_window() -- Initial window creation
 
-    -- Update window size on Vim resize events
-    autocmd_id = vim.api.nvim_create_autocmd({ "VimResized" }, {
-        callback = function()
-            open_window() -- Call the function to update the window size
-        end,
-    })
+	-- Update window size on Vim resize events
+	autocmd_id = vim.api.nvim_create_autocmd({ "VimResized" }, {
+		callback = function()
+			open_window() -- Call the function to update the window size
+		end,
+	})
 
-    -- Create the closing callback
-    local function closing()
-        -- Remove the autocmd to prevent errors after the window is closed
-        if autocmd_id then
-            vim.api.nvim_del_autocmd(autocmd_id)
-            autocmd_id = nil
-        end
+	-- Create the closing callback
+	local function closing()
+		-- Remove the autocmd to prevent errors after the window is closed
+		if autocmd_id then
+			vim.api.nvim_del_autocmd(autocmd_id)
+			autocmd_id = nil
+		end
 
-        if vim.api.nvim_win_is_valid(win) then
-            vim.api.nvim_win_close(win, true)
-        end
-        if os.getenv("NVIMUPDATER_HEADLESS") then
-            vim.cmd("qa")
-        end
-        if ispreupdate then
-            U.ConfirmPrompt("Perform Neovim update?", function()
-                require("nvim_updater").update_neovim()
-            end)
-        end
-    end
+		if vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_close(win, true)
+		end
+		if os.getenv("NVIMUPDATER_HEADLESS") then
+			vim.cmd("qa")
+		end
+		if ispreupdate then
+			U.ConfirmPrompt("Perform Neovim update?", function()
+				require("nvim_updater").update_neovim()
+			end)
+		end
+	end
 
-    -- Run the terminal command
-    vim.fn.termopen(command, {
-        on_stdout = function(_, data)
-            if data then
-                for _, line in ipairs(data) do
-                    table.insert(output_lines, line)
-                end
-            end
-        end,
-        on_stderr = function(_, data)
-            if data then
-                for _, line in ipairs(data) do
-                    table.insert(output_lines, line)
-                end
-            end
-        end,
-        on_exit = function(_, exit_code)
-            result_code = exit_code
-            if exit_code == 0 then
-                if autoclose then -- If autoclose is true, close the terminal window
-                    closing()
-                    return
-                end
+	-- Run the terminal command
+	vim.fn.termopen(command, {
+		on_stdout = function(_, data)
+			if data then
+				for _, line in ipairs(data) do
+					table.insert(output_lines, line)
+				end
+			end
+		end,
+		on_stderr = function(_, data)
+			if data then
+				for _, line in ipairs(data) do
+					table.insert(output_lines, line)
+				end
+			end
+		end,
+		on_exit = function(_, exit_code)
+			result_code = exit_code
+			if exit_code == 0 then
+				if autoclose then -- If autoclose is true, close the terminal window
+					closing()
+					return
+				end
 
-                -- Wait for a keypress before closing the terminal window
-                -- Bind different keys to closing the terminal
-                for _, key in ipairs({ "q", "<Space>", "<CR>", "<Esc>", "y" }) do
-                    vim.api.nvim_buf_set_keymap(buf, "n", key, "", {
-                        noremap = true,
-                        silent = true,
-                        callback = function()
-                            closing()
-                        end,
-                        desc = "Close terminal window",
-                    })
-                end
-            else
-                U.notify("Command failed with exit code: " .. exit_code, vim.log.levels.DEBUG)
-                vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
-                    noremap = true,
-                    silent = true,
-                    callback = function()
-                        if vim.api.nvim_win_is_valid(win) then
-                            vim.api.nvim_win_close(win, true)
-                        end
-                    end,
-                    desc = "Close terminal window after failure",
-                })
-            end
-        end,
-    })
+				-- Wait for a keypress before closing the terminal window
+				-- Bind different keys to closing the terminal
+				for _, key in ipairs({ "q", "<Space>", "<CR>", "<Esc>", "y" }) do
+					vim.api.nvim_buf_set_keymap(buf, "n", key, "", {
+						noremap = true,
+						silent = true,
+						callback = function()
+							closing()
+						end,
+						desc = "Close terminal window",
+					})
+				end
+			else
+				U.notify("Command failed with exit code: " .. exit_code, vim.log.levels.DEBUG)
+				vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
+					noremap = true,
+					silent = true,
+					callback = function()
+						if vim.api.nvim_win_is_valid(win) then
+							vim.api.nvim_win_close(win, true)
+						end
+					end,
+					desc = "Close terminal window after failure",
+				})
+			end
+		end,
+	})
 
-    -- Create an autocmd for the window closing callback
-    if callback then
-        local winid = tostring(win)
-        vim.api.nvim_create_autocmd("WinClosed", {
-            pattern = winid, -- Use the window ID as the pattern
-            callback = function(ev)
-                callback({
-                    ev = ev,
-                    result_code = result_code,
-                    output = table.concat(output_lines, "\n")
-                })
-                return true
-            end,
-        })
-    end
+	-- Create an autocmd for the window closing callback
+	if callback then
+		local winid = tostring(win)
+		vim.api.nvim_create_autocmd("WinClosed", {
+			pattern = winid, -- Use the window ID as the pattern
+			callback = function(ev)
+				callback({
+					ev = ev,
+					result_code = result_code,
+					output = table.concat(output_lines, "\n"),
+				})
+				return true
+			end,
+		})
+	end
 end
 
 --- Helper function to return the number of pending commits
