@@ -16,6 +16,7 @@ P.default_config = {
 	notify_updates = false, -- Enable update notification
 	verbose = false, -- Default verbose mode
 	default_keymaps = false, -- Use default keymaps
+	build_fresh = true, -- Always remove build dir before building
 }
 
 P.last_status = {
@@ -116,6 +117,7 @@ end
 local function update_with_retry()
 	if P.last_status.retry then
 		P.last_status.retry = false
+		utils.notify("Removal succeeded. Retrying update...", vim.log.levels.INFO, true)
 		P.update_neovim()
 	end
 end
@@ -127,6 +129,13 @@ function P.update_neovim(opts)
 	local source_dir = opts.source_dir ~= "" and opts.source_dir or P.default_config.source_dir
 	local build_type = opts.build_type ~= "" and opts.build_type or P.default_config.build_type
 	local branch = opts.branch ~= "" and opts.branch or P.default_config.branch
+
+	if P.default_config.build_fresh then
+		if utils.directory_exists(source_dir .. "/build") then
+			utils.rm_build_then_update(opts)
+			return
+		end
+	end
 
 	local notification_msg = "Starting Neovim update...\nSource: "
 		.. source_dir
@@ -225,7 +234,14 @@ function P.remove_source_dir(opts)
 				end
 
 				-- Attempt to remove with elevated privileges
-				local rm_msg = "echo Attempting to remove "
+
+				local elevate_perms_explained = ""
+				if P.default_config.verbose then
+					elevate_perms_explained = "echo Removing the directory failed using traditional methods.\n"
+						.. "echo This typically indicates a permissions issue with the directory.\n"
+				end
+				local rm_msg = elevate_perms_explained
+					.. "echo Attempting to remove "
 					.. source_dir
 					.. " directory with elevated privileges.\n"
 					.. "echo Please authorize sudo and press enter.\n"
