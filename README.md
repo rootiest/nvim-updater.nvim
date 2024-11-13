@@ -489,6 +489,7 @@ Available `[TerminalOptions]`:
   - `ev`: The [event object](https://neovim.io/doc/user/api.html#event-args)
     received from the terminal close event.
   - `exit_code`: The exit code of the process that was run in the terminal buffer.
+  - `output`: The output of the process that was run in the terminal buffer.
 
   In most cases, this will occur after the process has completed.
 
