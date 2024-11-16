@@ -170,11 +170,13 @@ function P.update_neovim(opts)
 		callback = function(results)
 			if results.result_code ~= 0 then
 				utils.notify("Neovim update failed with error code: " .. results.result_code, vim.log.levels.ERROR)
-				utils.ConfirmPrompt("Remove build directory and try again?", function()
-					P.last_status.count = "?"
-					P.last_status.retry = true
-					P.remove_source_dir({ source_dir = source_dir .. "/build" })
-				end)
+				if P.default_config.build_fresh == false then
+					utils.ConfirmPrompt("Remove build directory and try again?", function()
+						P.last_status.count = "?"
+						P.last_status.retry = true
+						P.remove_source_dir({ source_dir = source_dir .. "/build" })
+					end)
+				end
 			else
 				utils.notify("Neovim update complete!", vim.log.levels.INFO, true)
 				utils.notify("Please restart Neovim for the changes to take effect.", vim.log.levels.INFO)
