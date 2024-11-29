@@ -170,6 +170,7 @@ function P.update_neovim(opts)
 		filetype = "neovim_updater_term.updating",
 		ispreupdate = false,
 		autoclose = true,
+		enter_insert = true,
 		callback = function(results)
 			if results.result_code ~= 0 then
 				utils.notify("Neovim update failed with error code: " .. results.result_code, vim.log.levels.ERROR)
@@ -188,9 +189,6 @@ function P.update_neovim(opts)
 			end
 		end,
 	})
-
-	-- Go to insert mode
-	vim.cmd("startinsert")
 end
 
 --- Remove the Neovim source directory or a custom one.

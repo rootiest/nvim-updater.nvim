@@ -167,6 +167,7 @@ end
 ---                            Please use the `callback` function instead.
 ---@field autoclose? boolean Whether the terminal should be automatically closed (optional)
 ---@field callback? fun(params?: TerminalCloseParams) Callback function to run after the terminal is closed
+---@field enter_insert? boolean Whether to enter insert mode immediately (optional)
 
 --- Callback parameter table for the floating terminal close event.
 ---@class TerminalCloseParams
@@ -184,7 +185,8 @@ end
 ---                            Please use the `callback` function instead.
 ---@param autoclose? boolean Whether the terminal should be automatically closed (optional if using positional arguments)
 ---@param callback? fun(params?: TerminalCloseParams) Callback function to run after the terminal is closed
-function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose, callback)
+---@param enter_insert? boolean Whether to enter insert mode immediately (optional if using positional arguments)
+function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose, callback, enter_insert)
 	local opts
 	local result_code = -1 -- Indicates the command is still running
 	local output_lines = {} -- Store terminal output lines
@@ -195,10 +197,11 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	else
 		opts = {
 			command = command_or_opts or "",
-			filetype = filetype or "floating.term", -- Default filetype
+			filetype = filetype or "FloatingTerm",
 			ispreupdate = ispreupdate or false,
 			autoclose = autoclose or false,
 			callback = callback or nil,
+			enter_insert = enter_insert or false,
 		}
 	end
 
@@ -210,6 +213,7 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	callback = opts.callback or function()
 		return true
 	end
+	enter_insert = opts.enter_insert or false
 
 	-- Create a new buffer for the terminal, set it as non-listed and scratch
 	local buf = vim.api.nvim_create_buf(false, true)
@@ -339,6 +343,19 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 			end
 		end,
 	})
+
+	if enter_insert then
+		-- Enter insert mode immediately
+		vim.cmd("startinsert")
+
+		-- Create an autocmd to ensure insert mode when the window gets focus
+		vim.api.nvim_create_autocmd("WinEnter", {
+			buffer = buf,
+			callback = function()
+				vim.cmd("startinsert")
+			end,
+		})
+	end
 
 	-- Create an autocmd for the window closing callback
 	if callback then
