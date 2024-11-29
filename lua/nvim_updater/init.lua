@@ -151,11 +151,14 @@ function P.update_neovim(opts)
 	if not dir_exists then
 		git_commands = "git clone https://github.com/neovim/neovim " .. source_dir .. " && cd " .. source_dir
 	else
-		git_commands = "cd " .. source_dir
+		-- Check if we're in a git repo and get current branch
+		git_commands = "cd " .. source_dir .. " && git fetch origin && "
+		
+		-- Only switch branch if we're not already on the target branch
+		git_commands = git_commands .. "test \"$(git rev-parse --abbrev-ref HEAD)\" = \"" .. branch .. "\" || "
+		git_commands = git_commands .. "git switch " .. branch .. " && "
+		git_commands = git_commands .. "git pull"
 	end
-
-	-- Checkout branch and pull latest changes
-	git_commands = git_commands .. " && git fetch origin && git checkout " .. branch .. " && git pull"
 
 	local build_command = "cd " .. source_dir .. " && make CMAKE_BUILD_TYPE=" .. build_type .. " && sudo make install"
 
