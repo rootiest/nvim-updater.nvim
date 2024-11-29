@@ -232,11 +232,18 @@ The `setup` function accepts an optional table to configure the plugin’s behav
    `number` - Update interval in seconds.
 
 - **`notify_updates`**: (boolean) Produce update notifications  
-  Default is `false`
+  Default is `false`.
 
   Possible values are:  
   `true` - Produce update notifications at update_interval.
   `false` - Do not produce update notifications.
+
+- **`build_fresh`**: (boolean) Remove the build directory before compiling.  
+  Default is `true`.
+
+  Possible values are:  
+   `true` - Always remove the build directory before compiling.  
+   `false` - Do not remove the build directory before compiling.
 
 - **`default_keymaps`**: (boolean) Enable default keymaps.  
   Default is `false`.
@@ -260,6 +267,7 @@ require("nvim_updater").setup({
   update_interval = (60 * 60) * 6,     -- 6 hours default update interval
   notify_updates = false,              -- Disable update notifications
   verbose = false,                     -- Disable verbose output
+  build_fresh = true,                  -- Remove the build directory before compiling
   default_keymaps = false,              -- Disable default keymaps
 })
 ```
@@ -388,7 +396,7 @@ Available `[options]`:
 #### Show new commits
 
 ```lua
- require("nvim_updater.utils").show_new_commits( [options] )
+ require("nvim_updater").show_new_commits( [options] )
 ```
 
 This function opens a floating terminal with the new commits/changes on
@@ -406,13 +414,13 @@ Options may be specified in the following manners:
 1. Specify parameters directly: (must follow the same order as shown above)
 
    ```lua
-   require("nvim_updater.utils").show_new_commits(true, false)
+   require("nvim_updater").show_new_commits(true, false)
    ```
 
 2. Use a table: (may be specified in any order or combination)
 
    ```lua
-   require("nvim_updater.utils").show_new_commits({
+   require("nvim_updater").show_new_commits({
      isupdate = true,
      short = false
    })
@@ -473,6 +481,8 @@ Available `[TerminalOptions]`:
   Default is `false`.
 - **`autoclose`**: Whether the terminal buffer will be closed when the process ends.
   Default is `false`.
+- **`enter_insert`**: Whether the terminal should start in insert mode and maintain it when focused.
+  Default is `false`.
 - **`callback`**: A function to call when the terminal buffer is closed.
   Default is `nil`.
 
@@ -489,6 +499,7 @@ Available `[TerminalOptions]`:
   - `ev`: The [event object](https://neovim.io/doc/user/api.html#event-args)
     received from the terminal close event.
   - `exit_code`: The exit code of the process that was run in the terminal buffer.
+  - `output`: The output of the process that was run in the terminal buffer.
 
   In most cases, this will occur after the process has completed.
 

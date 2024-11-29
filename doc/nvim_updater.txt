@@ -225,11 +225,11 @@ Options may be specified in the following manners:
 
 1. Specify parameters directly: (must follow the same order as in docs)
   >lua
-   require("nvim_updater.utils").show_new_commits(true, false)
+   require("nvim_updater").show_new_commits(true, false)
 <
 2. Use a table: (may be specified in any order or combination)
   >lua
-   require("nvim_updater.utils").show_new_commits({
+   require("nvim_updater").show_new_commits({
      isupdate = true,
      short = false
    })
@@ -274,7 +274,7 @@ Available `[options]`:
 
 --- Show new commits ---
 >lua
- require("nvim_updater.utils").show_new_commits( [options] )
+ require("nvim_updater").show_new_commits( [options] )
 <
 This function opens a floating terminal with the new commits/changes on
 the remote repository vs the local src directory.
@@ -330,7 +330,8 @@ Available `[options]`:
                      Default is `false`.
 - `autoclose`    ->  Whether the terminal buffer will be closed when the process ends.
                      Default is `false`.
-
+- `enter_insert` -> Whether the terminal should start in insert mode and
+                     maintain it when focused. Default is `false`.
 - `callback`     ->  A function to call when the terminal buffer is closed.
                      Default is `nil`.
 
@@ -344,6 +345,7 @@ Available `[options]`:
   - `ev`:        -> The event object received from the terminal close event.
                     See: *event-args*
   - `exit_code`: -> The exit code of the process that was run in the terminal buffer.
+  - `output`:    -> The output of the process that was run in the terminal buffer.
 
   In most cases, this will occur after the process has completed.
 
@@ -423,15 +425,15 @@ Available configuration fields:
                        Default is `false`.
                        When set to `false`, `INFO` and `DEBUG`
                         notifications from the plugin are suppressed.
-                       Opts: `true` - Enable verbose output
-                           `false` - Disable verbose output.
+                       Opts: `true`  - Enable verbose output
+                             `false` - Disable verbose output.
 
 - `check_for_updates`: (boolean) -> Enable automatic update checks.
                        Default is `false`.
                        When set to `false`, the plugin will not
                         check for updates automatically.
-                       Opts: `true` - Enable automatic update checks.
-                           `false` - Disable automatic update checks.
+                       Opts: `true`  - Enable automatic update checks.
+                             `false` - Disable automatic update checks.
 
 - `update_interval`: (number) -> Update interval in seconds.
                        Default is `(60 * 60 * 6)` (6 hours).
@@ -443,6 +445,18 @@ Available configuration fields:
                        Default is `false`
                        When set to `true`, the plugin will produce
                         notifications for new commits.
+                       Opts: `true`  - Enable periodic update notifications.
+                             `false` - Disable periodic update notifications.
+
+- `build_fresh`: (boolean) -> Remove the build directory before compiling.
+                       Default is `true`
+                       When set to `true`, the plugin will always
+                        remove the build directory before performing an
+                        update.
+                       Opts: `true`  - Always remove the build directory before
+                                        compiling.
+                             `false` - Do not attempt to remove the build
+                                        directory before compiling.
 
 - `default_keymaps`: (boolean) -> Enable default keymaps.
                        Default is `false`.

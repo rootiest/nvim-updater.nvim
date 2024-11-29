@@ -167,11 +167,13 @@ end
 ---                            Please use the `callback` function instead.
 ---@field autoclose? boolean Whether the terminal should be automatically closed (optional)
 ---@field callback? fun(params?: TerminalCloseParams) Callback function to run after the terminal is closed
+---@field enter_insert? boolean Whether to enter insert mode immediately (optional)
 
 --- Callback parameter table for the floating terminal close event.
 ---@class TerminalCloseParams
 ---@field ev? table The close event object (optional)
 ---@field result_code? integer The exit code of the terminal command process (optional)
+---@field output? string The complete terminal output (optional)
 
 -- Helper to display floating terminal in a centered, minimal Neovim window.
 -- This is useful for running long shell commands like building Neovim.
@@ -183,12 +185,11 @@ end
 ---                            Please use the `callback` function instead.
 ---@param autoclose? boolean Whether the terminal should be automatically closed (optional if using positional arguments)
 ---@param callback? fun(params?: TerminalCloseParams) Callback function to run after the terminal is closed
---
--- This allows any function to be called after the terminal is closed,
--- receiving the command result and event information in a single parameter table.
-function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose, callback)
+---@param enter_insert? boolean Whether to enter insert mode immediately (optional if using positional arguments)
+function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autoclose, callback, enter_insert)
 	local opts
 	local result_code = -1 -- Indicates the command is still running
+	local output_lines = {} -- Store terminal output lines
 
 	-- Determine if the first argument is a table or positional arguments
 	if type(command_or_opts) == "table" then
@@ -196,10 +197,11 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	else
 		opts = {
 			command = command_or_opts or "",
-			filetype = filetype or "floating.term", -- Default filetype
+			filetype = filetype or "FloatingTerm",
 			ispreupdate = ispreupdate or false,
 			autoclose = autoclose or false,
 			callback = callback or nil,
+			enter_insert = enter_insert or false,
 		}
 	end
 
@@ -211,6 +213,7 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	callback = opts.callback or function()
 		return true
 	end
+	enter_insert = opts.enter_insert or false
 
 	-- Create a new buffer for the terminal, set it as non-listed and scratch
 	local buf = vim.api.nvim_create_buf(false, true)
@@ -291,6 +294,20 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 
 	-- Run the terminal command
 	vim.fn.termopen(command, {
+		on_stdout = function(_, data)
+			if data then
+				for _, line in ipairs(data) do
+					table.insert(output_lines, line)
+				end
+			end
+		end,
+		on_stderr = function(_, data)
+			if data then
+				for _, line in ipairs(data) do
+					table.insert(output_lines, line)
+				end
+			end
+		end,
 		on_exit = function(_, exit_code)
 			result_code = exit_code
 			if exit_code == 0 then
@@ -327,13 +344,30 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 		end,
 	})
 
+	if enter_insert then
+		-- Enter insert mode immediately
+		vim.cmd("startinsert")
+
+		-- Create an autocmd to ensure insert mode when the window gets focus
+		vim.api.nvim_create_autocmd("WinEnter", {
+			buffer = buf,
+			callback = function()
+				vim.cmd("startinsert")
+			end,
+		})
+	end
+
 	-- Create an autocmd for the window closing callback
 	if callback then
 		local winid = tostring(win)
 		vim.api.nvim_create_autocmd("WinClosed", {
 			pattern = winid, -- Use the window ID as the pattern
 			callback = function(ev)
-				callback({ ev = ev, result_code = result_code })
+				callback({
+					ev = ev,
+					result_code = result_code,
+					output = table.concat(output_lines, "\n"),
+				})
 				return true
 			end,
 		})
@@ -342,7 +376,6 @@ end
 
 --- Helper function to return the number of pending commits
 ---@function get_update_status
----@return string formatted_messge The formatted status message
 function U.get_commit_count()
 	-- Define the path to the Neovim source directory
 	local source_dir = require("nvim_updater").default_config.source_dir
@@ -413,150 +446,18 @@ function U.is_installed(plugin)
 	end
 end
 
---- Function to execute a shell command and return the output as a tabl
----@param command string|string[] The shell command(s) to execute
----@return string[] output The output of the shell command
-function U.run_hidden_command(command)
-	-- Convert the command to a string if it's a table
-	if type(command) == "table" then
-		command = table.concat(command, "\n")
+--- Helper function to remove the build directory and update Neovim
+---@param opts table|nil Optional options for the update process
+function U.rm_build_then_update(opts)
+	opts = opts or {}
+	local default_config = require("nvim_updater").default_config
+	local source_dir = opts.source_dir ~= "" and opts.source_dir or default_config.source_dir
+	local build_dir = source_dir .. "/build"
+	local build_dir_exists = U.directory_exists(build_dir)
+	local source_dir_exists = U.directory_exists(source_dir)
+	if build_dir_exists and source_dir_exists then
+		require("nvim_updater").last_status.retry = true
+		require("nvim_updater").remove_source_dir({ source_dir = build_dir })
 	end
-	-- Execute the command and capture the output
-	local handle = io.popen(command)
-
-	-- Check if the handle is nil (command may have failed)
-	if not handle then
-		error("Failed to run command: " .. command) -- Raise an error if the command failed
-	end
-
-	local output = handle:read("*a") -- Read all output
-	handle:close() -- Important to close the handle safely
-
-	-- Check if the output is nil to avoid issues with splitting
-	if output == nil then
-		return {} -- Return an empty table if there is no output
-	end
-
-	-- Split output by newline into a table
-	local lines = {}
-	for line in output:gmatch("[^\n]+") do
-		table.insert(lines, line) -- Insert each line into the table
-	end
-
-	return lines
 end
-
---- Function to draw a floating window to display data
----@param data string[] The data to display in the floating window
----@return boolean success True if the floating window was successfully drawn
-function U.draw_floating_window(data)
-	-- Verify the data is not empty
-	if not data or #data == 0 then
-		U.notify("No data to display", vim.log.levels.WARN)
-		return false
-	end
-
-	-- Add a padding character to each line
-	for i = 1, #data do
-		data[i] = data[i] .. " "
-	end
-
-	local width = 0
-	local height = #data - 2
-
-	-- Find the width of the longest line for proper sizing
-	for _, line in ipairs(data) do
-		width = math.max(width, #line)
-	end
-
-	-- Determine padding and calculate window size
-	local padded_width = width + 2
-	local padded_height = height + 2
-
-	-- Get the current window's dimensions
-	local win_id = vim.api.nvim_get_current_win()
-	local win_config = vim.api.nvim_win_get_config(win_id)
-	local current_win_width = win_config.width
-	local current_win_height = win_config.height
-
-	-- Calculate the center position for the floating window
-	local col = math.floor((current_win_width - padded_width) / 2)
-	local row = math.floor((current_win_height - padded_height) / 2)
-
-	local buf_id = vim.api.nvim_create_buf(false, true) -- Create a new buffer (scratch)
-
-	-- Set buffer content to the output
-	vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, data)
-
-	-- Set window options for floating window
-	local opts = {
-		relative = "win",
-		win = win_id,
-		width = padded_width,
-		height = padded_height,
-		anchor = "NW",
-		col = col,
-		row = row,
-		border = "rounded", -- Rounded border
-	}
-
-	-- Create floating window
-	local float_win_id = vim.api.nvim_open_win(buf_id, true, opts)
-
-	-- Disable line numbers
-	vim.api.nvim_set_option_value("number", false, { scope = "local", win = float_win_id }) -- Disable line numbers
-	vim.api.nvim_set_option_value("relativenumber", false, { scope = "local", win = float_win_id }) -- Disable relative line numbers
-
-	-- Set additional options for the floating window
-	vim.api.nvim_set_option_value("wrap", true, { scope = "local", win = float_win_id }) -- Enable line wrapping
-	vim.api.nvim_set_option_value("scrolloff", 0, { scope = "local", win = float_win_id }) -- Disable scrolloff for horizontal
-	vim.api.nvim_set_option_value("sidescrolloff", 0, { scope = "local", win = float_win_id }) -- Disable scrolloff for vertical
-	vim.api.nvim_set_option_value("list", false, { scope = "local", win = float_win_id }) -- Disable whitespace characters
-
-	-- Helper function to close the floating window
-	local function closing()
-		vim.api.nvim_win_close(float_win_id, true)
-	end
-
-	-- Helper function to pick an item
-	local function picking()
-		local line = vim.api.nvim_get_current_line()
-		local item = line:match("%s*(.*)"):gsub("%s+$", "") -- Remove trailing spaces
-		-- Store item in register
-		vim.fn.setreg('"', item)
-		closing()
-	end
-
-	-- Bind keys for closing
-	for _, key in ipairs({ "q", "<Esc>" }) do
-		vim.api.nvim_buf_set_keymap(buf_id, "n", key, "", {
-			noremap = true,
-			silent = true,
-			callback = function()
-				closing()
-			end,
-			desc = "Close terminal window",
-		})
-	end
-
-	-- Bind keys for picking
-	for _, key in ipairs({ "y", "<CR>", "<Space>" }) do
-		vim.api.nvim_buf_set_keymap(buf_id, "n", key, "", {
-			noremap = true,
-			silent = true,
-			callback = function()
-				picking()
-			end,
-			desc = "Select item",
-		})
-	end
-
-	-- Check for errors
-	if float_win_id == 0 then
-		U.notify("Failed to create floating window", vim.log.levels.ERROR)
-		return false
-	end
-	return true
-end
-
 return U

@@ -16,6 +16,7 @@ P.default_config = {
 	notify_updates = false, -- Enable update notification
 	verbose = false, -- Default verbose mode
 	default_keymaps = false, -- Use default keymaps
+	build_fresh = true, -- Always remove build dir before building
 }
 
 P.last_status = {
@@ -116,6 +117,7 @@ end
 local function update_with_retry()
 	if P.last_status.retry then
 		P.last_status.retry = false
+		utils.notify("Removal succeeded. Retrying update...", vim.log.levels.INFO, true)
 		P.update_neovim()
 	end
 end
@@ -127,6 +129,13 @@ function P.update_neovim(opts)
 	local source_dir = opts.source_dir ~= "" and opts.source_dir or P.default_config.source_dir
 	local build_type = opts.build_type ~= "" and opts.build_type or P.default_config.build_type
 	local branch = opts.branch ~= "" and opts.branch or P.default_config.branch
+
+	if P.default_config.build_fresh then
+		if utils.directory_exists(source_dir .. "/build") then
+			utils.rm_build_then_update(opts)
+			return
+		end
+	end
 
 	local notification_msg = "Starting Neovim update...\nSource: "
 		.. source_dir
@@ -142,11 +151,14 @@ function P.update_neovim(opts)
 	if not dir_exists then
 		git_commands = "git clone https://github.com/neovim/neovim " .. source_dir .. " && cd " .. source_dir
 	else
-		git_commands = "cd " .. source_dir
+		-- Check if we're in a git repo and get current branch
+		git_commands = "cd " .. source_dir .. " && git fetch origin && "
+		
+		-- Only switch branch if we're not already on the target branch
+		git_commands = git_commands .. "test \"$(git rev-parse --abbrev-ref HEAD)\" = \"" .. branch .. "\" || "
+		git_commands = git_commands .. "git switch " .. branch .. " && "
+		git_commands = git_commands .. "git pull"
 	end
-
-	-- Checkout branch and pull latest changes
-	git_commands = git_commands .. " && git fetch origin && git checkout " .. branch .. " && git pull"
 
 	local build_command = "cd " .. source_dir .. " && make CMAKE_BUILD_TYPE=" .. build_type .. " && sudo make install"
 
@@ -158,14 +170,17 @@ function P.update_neovim(opts)
 		filetype = "neovim_updater_term.updating",
 		ispreupdate = false,
 		autoclose = true,
+		enter_insert = true,
 		callback = function(results)
 			if results.result_code ~= 0 then
 				utils.notify("Neovim update failed with error code: " .. results.result_code, vim.log.levels.ERROR)
-				utils.ConfirmPrompt("Remove build directory and try again?", function()
-					P.last_status.count = "?"
-					P.last_status.retry = true
-					P.remove_source_dir({ source_dir = source_dir .. "/build" })
-				end)
+				if P.default_config.build_fresh == false then
+					utils.ConfirmPrompt("Remove build directory and try again?", function()
+						P.last_status.count = "?"
+						P.last_status.retry = true
+						P.remove_source_dir({ source_dir = source_dir .. "/build" })
+					end)
+				end
 			else
 				utils.notify("Neovim update complete!", vim.log.levels.INFO, true)
 				utils.notify("Please restart Neovim for the changes to take effect.", vim.log.levels.INFO)
@@ -174,9 +189,6 @@ function P.update_neovim(opts)
 			end
 		end,
 	})
-
-	-- Go to insert mode
-	vim.cmd("startinsert")
 end
 
 --- Remove the Neovim source directory or a custom one.
@@ -225,7 +237,14 @@ function P.remove_source_dir(opts)
 				end
 
 				-- Attempt to remove with elevated privileges
-				local rm_msg = "echo Attempting to remove "
+
+				local elevate_perms_explained = ""
+				if P.default_config.verbose then
+					elevate_perms_explained = "echo Removing the directory failed using traditional methods.\n"
+						.. "echo This typically indicates a permissions issue with the directory.\n"
+				end
+				local rm_msg = elevate_perms_explained
+					.. "echo Attempting to remove "
 					.. source_dir
 					.. " directory with elevated privileges.\n"
 					.. "echo Please authorize sudo and press enter.\n"
@@ -404,12 +423,6 @@ function P.notify_new_commits(show_none, level)
 
 	local current_branch = vim.fn.system(current_branch_cmd):gsub("%s+", "") -- Trim whitespace
 
-	-- Check for errors in executing the branch command
-	if vim.v.shell_error ~= 0 then
-		utils.notify("Failed to retrieve the current branch.", vim.log.levels.ERROR)
-		return
-	end
-
 	-- Build the command to count new commits in the remote branch
 	local commit_count_cmd = ("cd %s && git rev-list --count %s..origin/%s"):format(
 		source_dir,
@@ -420,7 +433,7 @@ function P.notify_new_commits(show_none, level)
 	-- Execute the command to get the count of new commits
 	local commit_count = vim.fn.system(commit_count_cmd):gsub("%s+", "") -- Trim whitespace
 
-	-- Check for errors in executing the commit count command
+	-- Check for errors in executing the command
 	if vim.v.shell_error == 0 then
 		if tonumber(commit_count) > 0 then
 			-- Adjust the notification message based on the number of commits found
