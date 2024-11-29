@@ -396,7 +396,7 @@ Available `[options]`:
 #### Show new commits
 
 ```lua
- require("nvim_updater.utils").show_new_commits( [options] )
+ require("nvim_updater").show_new_commits( [options] )
 ```
 
 This function opens a floating terminal with the new commits/changes on
@@ -414,13 +414,13 @@ Options may be specified in the following manners:
 1. Specify parameters directly: (must follow the same order as shown above)
 
    ```lua
-   require("nvim_updater.utils").show_new_commits(true, false)
+   require("nvim_updater").show_new_commits(true, false)
    ```
 
 2. Use a table: (may be specified in any order or combination)
 
    ```lua
-   require("nvim_updater.utils").show_new_commits({
+   require("nvim_updater").show_new_commits({
      isupdate = true,
      short = false
    })
@@ -480,6 +480,8 @@ Available `[TerminalOptions]`:
   Whether the terminal will be followed by an update build.
   Default is `false`.
 - **`autoclose`**: Whether the terminal buffer will be closed when the process ends.
+  Default is `false`.
+- **`enter_insert`**: Whether the terminal should start in insert mode and maintain it when focused.
   Default is `false`.
 - **`callback`**: A function to call when the terminal buffer is closed.
   Default is `nil`.
