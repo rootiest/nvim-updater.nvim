@@ -293,7 +293,8 @@ function U.open_floating_terminal(command_or_opts, filetype, ispreupdate, autocl
 	end
 
 	-- Run the terminal command
-	vim.fn.termopen(command, {
+	vim.fn.jobstart(command, {
+		term = true, -- Use terminal mode
 		on_stdout = function(_, data)
 			if data then
 				for _, line in ipairs(data) do
